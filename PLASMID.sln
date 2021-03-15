@@ -1,0 +1,40 @@
+﻿
+Microsoft Visual Studio Solution File, Format Version 12.00
+# Visual Studio Version 16
+VisualStudioVersion = 16.0.31005.135
+MinimumVisualStudioVersion = 10.0.40219.1
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Plasmid_Android", "Plasmid_Android\Plasmid_Android.csproj", "{99F0BCC4-54F1-4958-BD22-AE386ECE7CE6}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Plasmid_PC", "Plasmid_PC\Plasmid_PC.csproj", "{64463B80-65B5-4B30-A51B-105236077338}"
+EndProject
+Project("{D954291E-2A0B-460D-934E-DC6B0785DB48}") = "Plasmid_Core", "Plasmid_Core\Plasmid_Core.shproj", "{A0CDBD0E-3A41-42B7-9425-A838BC2C7383}"
+EndProject
+Global
+	GlobalSection(SharedMSBuildProjectFiles) = preSolution
+		Plasmid_Core\Plasmid_Core.projitems*{64463b80-65b5-4b30-a51b-105236077338}*SharedItemsImports = 5
+		Plasmid_Core\Plasmid_Core.projitems*{99f0bcc4-54f1-4958-bd22-ae386ece7ce6}*SharedItemsImports = 4
+		Plasmid_Core\Plasmid_Core.projitems*{a0cdbd0e-3a41-42b7-9425-a838bc2c7383}*SharedItemsImports = 13
+	EndGlobalSection
+	GlobalSection(SolutionConfigurationPlatforms) = preSolution
+		Debug|Any CPU = Debug|Any CPU
+		Release|Any CPU = Release|Any CPU
+	EndGlobalSection
+	GlobalSection(ProjectConfigurationPlatforms) = postSolution
+		{99F0BCC4-54F1-4958-BD22-AE386ECE7CE6}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{99F0BCC4-54F1-4958-BD22-AE386ECE7CE6}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{99F0BCC4-54F1-4958-BD22-AE386ECE7CE6}.Debug|Any CPU.Deploy.0 = Debug|Any CPU
+		{99F0BCC4-54F1-4958-BD22-AE386ECE7CE6}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{99F0BCC4-54F1-4958-BD22-AE386ECE7CE6}.Release|Any CPU.Build.0 = Release|Any CPU
+		{99F0BCC4-54F1-4958-BD22-AE386ECE7CE6}.Release|Any CPU.Deploy.0 = Release|Any CPU
+		{64463B80-65B5-4B30-A51B-105236077338}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{64463B80-65B5-4B30-A51B-105236077338}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{64463B80-65B5-4B30-A51B-105236077338}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{64463B80-65B5-4B30-A51B-105236077338}.Release|Any CPU.Build.0 = Release|Any CPU
+	EndGlobalSection
+	GlobalSection(SolutionProperties) = preSolution
+		HideSolutionNode = FALSE
+	EndGlobalSection
+	GlobalSection(ExtensibilityGlobals) = postSolution
+		SolutionGuid = {90094B2C-62A5-4C56-B660-1BB5D5C78BB1}
+	EndGlobalSection
+EndGlobal
