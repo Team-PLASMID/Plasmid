@@ -1,6 +1,6 @@
 # Plasmid
 
-## Structure
+## Project Structure
 This is a multi-platform MonoGame program with targets for Android and PC.
 The Visual Studio solution consists of 3 separate projects:
 * Plasmid_Core
@@ -23,6 +23,13 @@ Game1.cs contains the code for the actual primary game loop, and Program.cs is j
 The Game1 class has all of the basics MonoGame needs to run a game.
 
 ### Initialize()
+Setting up stuff like game variables and display settings.
 ### LoadContent()
+Loading graphic and sound files.
+For example, using `Content.Load<Texture2D>()` to turn .png file into drawable Texture2D game objects.
 ### Update()
+Progress the game. (Gets called repeatedly as the game clock runs)
+This is where we register screen touches (`TouchPanel.GetState()`) and call other code to react to them.
 ### Draw()
+Draw graphic elements.
+(GraphicsDevice, SpriteBatch, Texture2D)
