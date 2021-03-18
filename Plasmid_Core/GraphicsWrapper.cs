@@ -4,6 +4,6 @@ public class GraphicsWrapper
 {
 	public GraphicsWrapper()
 	{
-		//code goes here 
+		//code goes here
 	}
 }
