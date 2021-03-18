@@ -7,24 +7,24 @@ using Microsoft.Xna.Framework.Input;
 
 namespace Plasmid_Core
 {
-    class Microbe
+class Microbe
     {
-        const static GENOME_SIZE = 60;
+        public static int GENOME_SIZE = 60;
 
         public string Genome { get; set; }
-        public List<Plasmid> Deck { get; set; }
+        public List<Card> Deck { get; set; }
         public Texture2D Sprite { get; set; }
 
         public Microbe()
         {
-            Genome = generateDNA(GENOME_SIZE);
-            Deck = new List<Plasmid>();
-            Sprite = generateSprite();
+            Genome = GenerateDNA(GENOME_SIZE);
+            Deck = new List<Card>();
+            //Sprite = generateSprite();
         }
 
         // Randomly generate a sequence of a g t c
         // In the future, there should probably be some limitation on the ratio
-        public static string generateDNA(int len)
+        public static string GenerateDNA(int len)
         {
             Random rand = new Random();
             int caseSwitch = rand.Next(0, 4);
@@ -60,21 +60,45 @@ namespace Plasmid_Core
             return dna;
         }
 
-        // Procedurally generate a sprite texture based on the Genome string
+        /* Procedurally generate a sprite texture based on the Genome string
         public static Texture2D generateSprite()
         {
             // placeholder, this will actually make a sprite later
             return new Texture2D();
         }
+        */
 
         // Print a nicely formatted genome sequence (for debugging in console)
-        public void printGenome()
+        public void PrintGenome()
         {
-            // *TODO*
-            // print the Genome formatted like a dna sequence
-            // ie:
-            //     1 gatcctccat atacaacggt atctccacct caggtttaga tctcaacaac ggaaccattg
-            //    61 ccgacatgag acagttaggt atcgtcgaga gttacaagct aaaacgagca gtagtcagct
+            int line = 0;
+
+            while (true)
+            {
+                Console.Write((line+1).ToString().PadLeft(5, ' '));
+                for (int i = 0; i < 6; i++)
+                {
+                    Console.Write(' ');
+                    for (int j = 0; j < 10; j++)
+                    {
+                        int c = j + 10 * i + 60 * line;
+                        if ( c < Genome.Length)
+                            Console.Write(Genome[c]);
+                        else
+                        {
+                            Console.WriteLine();
+                            return;
+                        }
+                    }
+                    Console.WriteLine();
+                }
+            }
+        }
+
+        public static void Main()
+        {
+            Microbe germbug = new Microbe();
+            germbug.PrintGenome();
         }
     }
 }
