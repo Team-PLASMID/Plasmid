@@ -10,6 +10,7 @@ namespace Plasmid_Core
 {
     class Card
     {
+        public static List<Card> All = new List<Card>();
         public static int Height = 96;
         public static int Width = 64;
         public static Color CardColor = Color.OldLace;
@@ -27,9 +28,33 @@ namespace Plasmid_Core
         public int CostC { get; set; }
         public Card Above { get; set; }
         public Card Below { get; set; }
-        public int X { get; set; }
-        public int Y { get; set; }
+        private Vector2 _pos;
+        public Vector2 Pos
+        {
+            get { return _pos; }
+            set { _pos = value; }
+        }
+        public int X
+        {
+            get { return (int)_pos.X; }
+            set { _pos.X = value; }
+        }
+        public int Y
+        {
+            get { return (int)_pos.Y; }
+            set { _pos.Y = value; }
+        }
 
+        public static Card New(int x, int y, string name, string text, string art, int a, int g, int t, int c)
+        {
+            All.Add(new Card(x, y, name, text, art, a, g, t, c));
+            return All[All.Count-1];
+        }
+
+        private Card(int x, int y, string name, string text, string art, int a, int g, int t, int c) : this(name, text, art, a, g, t, c)
+        {
+            Pos = new Vector2(x, y);
+        }
         public Card(string name, string text, string art, int a, int g, int t, int c)
         {
             Name = name;
@@ -74,6 +99,11 @@ namespace Plasmid_Core
 
             sb.End();
             graphics.SetRenderTarget(null);
+        }
+
+        public bool Touched(Vector2 loc)
+        {
+            return (new Rectangle(X, Y, Card.Width, Card.Height).Contains(loc));
         }
 
     }
