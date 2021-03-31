@@ -26,8 +26,6 @@ namespace Plasmid_Core
         public int CostG { get; set; }
         public int CostT { get; set; }
         public int CostC { get; set; }
-        public Card Above { get; set; }
-        public Card Below { get; set; }
         private Vector2 _pos;
         public Vector2 Pos
         {
@@ -64,9 +62,6 @@ namespace Plasmid_Core
             CostG = g;
             CostT = t;
             CostC = c;
-
-            Above = null;
-            Below = null;
         }
 
         public static void LoadTextures(ContentManager content)

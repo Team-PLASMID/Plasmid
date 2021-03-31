@@ -95,7 +95,7 @@ class Microbe
             }
         }
 
-        public static void Main()
+        public static void Test()
         {
             Microbe germbug = new Microbe();
             germbug.PrintGenome();

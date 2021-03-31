@@ -9,9 +9,8 @@ namespace Plasmid_Core
 {
     public class Game1 : Game
     {
-        private GraphicsDeviceManager _graphics;
+        private ExtendedGraphicsDeviceManager _graphics;
         private SpriteBatch _spriteBatch;
-        private Matrix ScaleMatrix;
         private TouchCollection TouchState;
 
         private List<Card> Deck;
@@ -20,9 +19,11 @@ namespace Plasmid_Core
         private Vector2 FloatOriginPos;
         private Vector2 FloatTouchPos;
 
+        private Texture2D BlankRectangle;
+
         public Game1()
         {
-            _graphics = new GraphicsDeviceManager(this);
+            _graphics = new ExtendedGraphicsDeviceManager(this, 480, 270);
             Content.RootDirectory = "Content";
             IsMouseVisible = true;
 
@@ -36,9 +37,12 @@ namespace Plasmid_Core
 
         protected override void Initialize()
         {
-            // TODO: Real dynamic scaling
-            ScaleMatrix = Matrix.CreateScale(4);
 
+            _graphics.PreferredBackBufferWidth = GraphicsAdapter.DefaultAdapter.CurrentDisplayMode.Width;
+            _graphics.PreferredBackBufferHeight = GraphicsAdapter.DefaultAdapter.CurrentDisplayMode.Height;
+            _graphics.IsFullScreen = true;
+            _graphics.ApplyChanges();
+            _graphics.CalculateTransformation();
             base.Initialize();
 
         }
@@ -51,6 +55,8 @@ namespace Plasmid_Core
             foreach (Card card in Card.All)
                 card.BuildTexture(Content, GraphicsDevice, _spriteBatch);
 
+            BlankRectangle = new Texture2D(GraphicsDevice, 1, 1);
+            BlankRectangle.SetData(new[] { Color.White });
         }
 
         protected override void Update(GameTime gameTime)
@@ -62,7 +68,7 @@ namespace Plasmid_Core
             foreach (var touch in TouchState)
             {
                 // Scale touch position
-                Vector2 pos = Vector2.Transform(touch.Position, Matrix.Invert(ScaleMatrix));
+                Vector2 pos = Vector2.Transform(touch.Position, Matrix.Invert(_graphics.Transform));
 
                 // NEW TOUCH
                 if (touch.State == TouchLocationState.Pressed)
@@ -102,9 +108,12 @@ namespace Plasmid_Core
 
         protected override void Draw(GameTime gameTime)
         {
-            GraphicsDevice.Clear(Color.CornflowerBlue);
+            GraphicsDevice.Clear(Color.Black);
 
-            _spriteBatch.Begin(SpriteSortMode.Immediate, null, null, null, null, null, ScaleMatrix);
+            _spriteBatch.Begin(SpriteSortMode.Immediate, null, null, null, null, null, _graphics.Transform);
+
+            // Draw background
+            _spriteBatch.Draw(BlankRectangle, new Rectangle(0, 0, 270, 480), Color.CornflowerBlue);
 
             // Draw hand cards
             if (Hand.Count > 0)
