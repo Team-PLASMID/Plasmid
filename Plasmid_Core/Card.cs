@@ -14,8 +14,10 @@ namespace Plasmid_Core
         public static int Height = 96;
         public static int Width = 64;
         public static Color CardColor = Color.OldLace;
+        public static Color CardBackColor = Color.CornflowerBlue;
         public static Color CardFrameColor = Color.DarkGoldenrod;
         public static Texture2D CardTexture;
+        public static Texture2D CardBackTexture;
         public static Texture2D CardFrameTexture;
 
         public string Name { get; }
@@ -67,6 +69,7 @@ namespace Plasmid_Core
         public static void LoadTextures(ContentManager content)
         {
             CardTexture = content.Load<Texture2D>("card");
+            CardBackTexture = content.Load<Texture2D>("card_back");
             CardFrameTexture = content.Load<Texture2D>("card_frame");
         }
 
