@@ -4,7 +4,8 @@ using System.Text;
 
 namespace Plasmid_Core
 {
-    class Class1
+    class CardDeck : List<Card>
     {
+
     }
 }

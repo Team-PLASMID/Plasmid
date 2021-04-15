@@ -9,6 +9,9 @@
     <Import_RootNamespace>Plasmid_Core</Import_RootNamespace>
   </PropertyGroup>
   <ItemGroup>
+    <Compile Include="..\Plasmid_Core\CardDeck.cs" />
+    <Compile Include="..\Plasmid_Core\Battle.cs" />
+    <Compile Include="..\Plasmid_Core\CardHand.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)ExtendedGraphicsDeviceManager.cs" />
     <Compile Include="..\Plasmid_Core\Card.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)Game1.cs" />
@@ -17,5 +20,8 @@
   <ItemGroup>
     <MonoGameContentReference Include="$(MSBuildThisFileDirectory)Content\Content.mgcb" />
     <None Include="$(MSBuildThisFileDirectory)Content\Content.mgcb" />
+  </ItemGroup>
+  <ItemGroup>
+    <Content Include="$(MSBuildThisFileDirectory)cards ref.xml" />
   </ItemGroup>
 </Project>

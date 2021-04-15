@@ -15,10 +15,15 @@ class Microbe
         public List<Card> Deck { get; set; }
         public Texture2D Sprite { get; set; }
 
+        public int MaxHP { get; set; }
+        public int HP { get; set; }
+
         public Microbe()
         {
             Genome = GenerateDNA(GENOME_SIZE);
             Deck = new List<Card>();
+            MaxHP = 20;
+            HP = MaxHP;
             //Sprite = generateSprite();
         }
 
