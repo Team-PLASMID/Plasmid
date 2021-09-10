@@ -35,7 +35,7 @@ namespace Plasmid_Core
 
         // Battle layout positions
         private Rectangle PlayArea = new Rectangle(0, 64, 270, 224);
-        private Rectangle HandArea = new Rectangle(15, 304, 240, 112);
+        private Rectangle HandArea = new Rectangle(20, 304, 230, 112);
         private Rectangle DeckArea = new Rectangle(31, 432, Card.Width, Card.Height);
         private Rectangle DiscardArea = new Rectangle(175, 432, Card.Width, Card.Height);
         private Rectangle MessageArea = new Rectangle(15, 16, 240, 32);
@@ -44,8 +44,14 @@ namespace Plasmid_Core
         private Vector2 HpBarLeftPos = new Vector2(4, 261);
         private Vector2 HpBarRightPos = new Vector2(131, 72);
 
-        Battle BattleDemo;
+        private Vector2 PlayerSpritePos = new Vector2(142, 157);
+        private Vector2 EnemySpritePos = new Vector2(5, 70);
 
+        private Microbe microbeA;
+        private Microbe microbeB;
+
+        Battle BattleDemo;
+        private Texture2D Logo;
         public Game1()
         {
             _graphics = new ExtendedGraphicsDeviceManager(this, 480, 270);
@@ -56,8 +62,13 @@ namespace Plasmid_Core
             Deck = new List<Card>();
             Discard = new List<Card>();
 
-            Microbe microbeA = new Microbe();
-            Microbe microbeB = new Microbe();
+            microbeA = new Microbe();
+            microbeA.GenerateDNA();
+            microbeA.GenSprite(GraphicsDevice);
+
+            microbeB = new Microbe();
+            microbeB.GenerateDNA();
+            microbeB.GenSprite(GraphicsDevice);
 
             BattleDemo = new Battle(microbeA, microbeB);
 
@@ -105,6 +116,8 @@ namespace Plasmid_Core
 
             BattleFont = Content.Load<SpriteFont>("BattleFont");
 
+            Logo = Content.Load<Texture2D>("logo");
+
             // Demo Deck
 
             Deck.Add(Card.Copy("Enzyme"));
@@ -116,6 +129,18 @@ namespace Plasmid_Core
             Deck.Add(Card.Copy("Cytotoxin"));
             Deck.Add(Card.Copy("Phagocytosis"));
             Deck.Add(Card.Copy("Phagocytosis"));
+
+            // Shuffle Demo Deck
+            // ( This should be made into a proper Shuffle function )
+            Random rand = new Random();
+            int n = Deck.Count;
+            for (int i = Deck.Count - 1; i > 1; i--)
+            {
+                int rnd = rand.Next(i + 1);
+                Card card = Deck[rnd];
+                Deck[rnd] = Deck[i];
+                Deck[i] = card;
+            }
 
         }
 
@@ -208,6 +233,10 @@ namespace Plasmid_Core
             _spriteBatch.Draw(BackgroundTexture, Vector2.Zero, BackgroundColor);
             _spriteBatch.DrawString(BattleFont, "PLASMID", new Vector2(MessageArea.X+5, MessageArea.Y+8), Color.Black);
 
+            // Draw microbes
+            _spriteBatch.Draw(microbeA.Sprite, PlayerSpritePos, Color.White);
+            _spriteBatch.Draw(microbeB.Sprite, EnemySpritePos, Color.White);
+
             // Draw HP bars
             _spriteBatch.Draw(HpPanelLeftTexture, HpPanelLeftPos, BackgroundColor);
             _spriteBatch.Draw(HpPanelRightTexture, HpPanelRightPos, BackgroundColor);
@@ -219,6 +248,9 @@ namespace Plasmid_Core
             _spriteBatch.Draw(HpBarTexture, HpBarLeftPos, Color.White);
             _spriteBatch.Draw(HpBarTexture, HpBarRightPos, Color.White);
 
+
+            // logo
+            //_spriteBatch.Draw(Logo, new Vector2(PlayArea.X + (PlayArea.Width - Logo.Width)/2, PlayArea.Y + (PlayArea.Height - Logo.Height)/2), Color.White);
 
             // Draw deck
             if (Deck.Count > 0)

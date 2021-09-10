@@ -9,6 +9,7 @@
     <Import_RootNamespace>Plasmid_Core</Import_RootNamespace>
   </PropertyGroup>
   <ItemGroup>
+    <Compile Include="$(MSBuildThisFileDirectory)GeneSequence.cs" />
     <Compile Include="..\Plasmid_Core\CardDeck.cs" />
     <Compile Include="..\Plasmid_Core\Battle.cs" />
     <Compile Include="..\Plasmid_Core\CardHand.cs" />
