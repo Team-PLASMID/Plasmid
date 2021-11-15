@@ -1,25 +1,36 @@
-﻿using Microsoft.Xna.Framework;
+﻿using Apos.Shapes;
+using LilyPath;
+using Microsoft.Xna.Framework;
 using Microsoft.Xna.Framework.Graphics;
 using Microsoft.Xna.Framework.Input;
 using Microsoft.Xna.Framework.Input.Touch;
 using System;
 using System.Collections.Generic;
 using System.Diagnostics;
-using System.Xml;
+using Plasmid.Graphics;
+using Plasmid.Cards;
 
-namespace Plasmid_Core
+namespace Plasmid
 {
     public class Game1 : Game
     {
-        private ExtendedGraphicsDeviceManager _graphics;
-        private SpriteBatch _spriteBatch;
-        private TouchCollection TouchState;
+        private Random rand = new Random();
+        //private ExtendedGraphicsDeviceManager graphics;
+        private GraphicsDeviceManager graphics;
+        private Shapes shapes;
+        private Sprites sprites;
+        private Camera camera;
+        //private Touchscreen touchscreen;
+        private TouchCollection touchState;
+        private Screen screen;
+        //private SpriteBatch _spriteBatch;
+        //private TouchCollection TouchState;
 
         private List<Card> Deck;
         private List<Card> Discard;
         private CardHand Hand;
 
-        private Card FloatCard;
+        private Card floatCard;
         private List<Card> FloatOrigin;
         private Vector2 FloatOriginPos;
         private Vector2 FloatTouchPos;
@@ -34,15 +45,29 @@ namespace Plasmid_Core
         private SpriteFont BattleFont;
 
         // Battle layout positions
-        private Rectangle PlayArea = new Rectangle(0, 64, 270, 224);
-        private Rectangle HandArea = new Rectangle(20, 304, 230, 112);
-        private Rectangle DeckArea = new Rectangle(31, 432, Card.Width, Card.Height);
-        private Rectangle DiscardArea = new Rectangle(175, 432, Card.Width, Card.Height);
-        private Rectangle MessageArea = new Rectangle(15, 16, 240, 32);
-        private Vector2 HpPanelLeftPos = new Vector2(0, 257);
-        private Vector2 HpPanelRightPos = new Vector2(125, 68);
-        private Vector2 HpBarLeftPos = new Vector2(4, 261);
-        private Vector2 HpBarRightPos = new Vector2(131, 72);
+        //private Rectangle PlayArea = new Rectangle(0, 64, 270, 224);
+        //private Rectangle HandArea = new Rectangle(20, 304, 230, 112);
+        //private Rectangle DeckArea = new Rectangle(31, 432, Card.Width, Card.Height);
+        //private Rectangle DiscardArea = new Rectangle(175, 432, Card.Width, Card.Height);
+        //private Rectangle MessageArea = new Rectangle(15, 16, 240, 32);
+        //private Vector2 HpPanelLeftPos = new Vector2(0, 257);
+        //private Vector2 HpPanelRightPos = new Vector2(125, 68);
+        //private Vector2 HpBarLeftPos = new Vector2(4, 261);
+        //private Vector2 HpBarRightPos = new Vector2(131, 72);
+
+        //private Vector2 PlayerSpritePos = new Vector2(142, 157);
+        //private Vector2 EnemySpritePos = new Vector2(5, 70);
+
+        private Rectangle PlayArea = new Rectangle(0, 193, 270, 224);
+        private Rectangle HandArea = new Rectangle(20, 70, 230, 100);
+        private Rectangle DeckArea = new Rectangle(31, -48, Card.Width, Card.Height);
+        private Rectangle DiscardArea = new Rectangle(175, -48, Card.Width, Card.Height);
+        //private Rectangle MessageArea = new Rectangle(15, 480 - 16, 240, 32);
+
+        private Vector2 HpPanelLeftPos = new Vector2(0, 195);
+        private Vector2 HpPanelRightPos = new Vector2(125, 386);
+        private Vector2 HpBarLeftPos = new Vector2(4, 200);
+        private Vector2 HpBarRightPos = new Vector2(131, 391);
 
         private Vector2 PlayerSpritePos = new Vector2(142, 157);
         private Vector2 EnemySpritePos = new Vector2(5, 70);
@@ -54,21 +79,38 @@ namespace Plasmid_Core
         private Texture2D Logo;
         public Game1()
         {
-            _graphics = new ExtendedGraphicsDeviceManager(this, 480, 270);
+            //graphics = new ExtendedGraphicsDeviceManager(this, 480, 270);
+            graphics = new GraphicsDeviceManager(this);
             Content.RootDirectory = "Content";
             IsMouseVisible = true;
+        }
 
-            Hand = new CardHand(HandArea, _graphics, _spriteBatch);
+        protected override void Initialize()
+        {
+
+            graphics.PreferredBackBufferWidth = GraphicsAdapter.DefaultAdapter.CurrentDisplayMode.Width;
+            graphics.PreferredBackBufferHeight = GraphicsAdapter.DefaultAdapter.CurrentDisplayMode.Height;
+            graphics.IsFullScreen = true;
+            graphics.ApplyChanges();
+            //graphics.CalculateTransformation();
+
+            this.screen = new Screen(this, 270, 480);
+            this.sprites = new Sprites(this);
+            this.shapes = new Shapes(this);
+            this.camera = new Camera(this.screen);
+            //this.touchscreen = new Touchscreen();
+
+            //Hand = new CardHand(HandArea, graphics, _spriteBatch);
+            Hand = new CardHand(HandArea);
             Deck = new List<Card>();
             Discard = new List<Card>();
 
             microbeA = new Microbe();
-            microbeA.GenerateDNA();
-            microbeA.GenSprite(GraphicsDevice);
-
             microbeB = new Microbe();
-            microbeB.GenerateDNA();
-            microbeB.GenSprite(GraphicsDevice);
+
+            microbeA.Vertices = Utils.RandomPoly(new Screen(this, 128, 128));
+            microbeB.Vertices = Utils.RandomPoly(new Screen(this, 128, 128));
+            //microbeA.TestGen(GraphicsDevice);
 
             BattleDemo = new Battle(microbeA, microbeB);
 
@@ -84,25 +126,21 @@ namespace Plasmid_Core
                 art.RemoveAt(i);
             }
             */
-        }
 
-        protected override void Initialize()
-        {
-
-            _graphics.PreferredBackBufferWidth = GraphicsAdapter.DefaultAdapter.CurrentDisplayMode.Width;
-            _graphics.PreferredBackBufferHeight = GraphicsAdapter.DefaultAdapter.CurrentDisplayMode.Height;
-            _graphics.IsFullScreen = true;
-            _graphics.ApplyChanges();
-            _graphics.CalculateTransformation();
             base.Initialize();
 
         }
 
         protected override void LoadContent()
         {
-            _spriteBatch = new SpriteBatch(GraphicsDevice);
+            DrawBatch drawBatch = new DrawBatch(GraphicsDevice);
+            //ShapeBatch sb = new ShapeBatch(GraphicsDevice, Content);
+            microbeA.GenerateDNA();
+            microbeA.GenSprite(GraphicsDevice);
+            microbeB.GenerateDNA();
+            microbeB.GenSprite(GraphicsDevice);
 
-            Card.Load(Content, GraphicsDevice, _spriteBatch);
+            Card.Load(Content, GraphicsDevice);
 
             BackgroundTexture = Content.Load<Texture2D>("battle_console");
             BackgroundColor = Color.LightCyan;
@@ -144,16 +182,108 @@ namespace Plasmid_Core
 
         }
 
+        //protected override void Update(GameTime gameTime)
+        //{
+        //    if (GamePad.GetState(PlayerIndex.One).Buttons.Back == ButtonState.Pressed || Keyboard.GetState().IsKeyDown(Keys.Escape))
+        //        Exit();
+
+        //    touchscreen.Update();
+
+        //    if (this.Deck.Count > 0)
+        //    {
+        //        if (touchscreen.IsRegionPressed(this.screen, this.DeckArea))
+        //        {
+        //            FloatCard = Deck[Deck.Count - 1];
+        //            FloatCard.Pos = new Vector2(DeckArea.X, DeckArea.Y);
+        //            FloatOrigin = Deck;
+        //            FloatOriginPos = FloatCard.Pos;
+        //            FloatTouchPos = pos;
+        //            Deck.RemoveAt(Deck.Count - 1);
+        //        }
+        //    }
+
+
+
+
+        //        // NEW TOUCH
+        //        if (touch.State == TouchLocationState.Pressed)
+        //        {
+        //            // Grab card from deck
+        //            if (Deck.Count > 0)
+        //            {
+        //                if (DeckArea.Contains(pos))
+        //                {
+        //                    FloatCard = Deck[Deck.Count - 1];
+        //                    FloatCard.Pos = new Vector2(DeckArea.X, DeckArea.Y);
+        //                    FloatOrigin = Deck;
+        //                    FloatOriginPos = FloatCard.Pos;
+        //                    FloatTouchPos = pos;
+        //                    Deck.RemoveAt(Deck.Count - 1);
+        //                }
+        //            }
+        //            // Grab card from hand
+        //            for (int i = Hand.Count - 1; i >= 0; i--)
+        //                if (Hand[i].Touched(pos))
+        //                {
+        //                    FloatCard = Hand[i];
+        //                    FloatOrigin = Hand;
+        //                    FloatOriginPos = FloatCard.Pos;
+        //                    FloatTouchPos = pos;
+        //                    Hand.Remove(FloatCard);
+        //                    break;
+        //                }
+        //        }
+
+        //        // MOVED TOUCH
+        //        else if (touch.State == TouchLocationState.Moved)
+        //        {
+        //            Debug.WriteLine("DRAG");
+        //            if (FloatCard != null)
+        //                FloatCard.Pos = Vector2.Subtract(Vector2.Add(FloatOriginPos, pos), FloatTouchPos);
+        //        }
+
+        //        // RELEASED TOUCH
+        //        else if (touch.State == TouchLocationState.Released)
+        //        {
+        //            Debug.WriteLine("RELEASING CARD, null = ", FloatCard == null);
+        //            if (FloatCard != null)
+        //            {
+        //                // Consider middle of floating card instead of touch position for drop
+        //                Vector2 middle = new Vector2(FloatCard.Pos.X + Card.Width / 2, FloatCard.Pos.Y + Card.Height / 2);
+
+        //                if (HandArea.Contains(middle))
+        //                    Hand.Add(FloatCard);
+        //                else if (PlayArea.Contains(middle) && FloatOrigin == Hand)
+        //                {
+        //                    BattleDemo.PlayCard(FloatCard);
+        //                    Discard.Add(FloatCard);
+        //                }
+        //                else
+        //                {
+        //                    FloatOrigin.Add(FloatCard);
+        //                    FloatCard.Pos = FloatOriginPos;
+        //                }
+        //            }
+        //            FloatCard = null;
+        //        }
+        //    }
+
+        //    Hand.Align();
+
+        //    base.Update(gameTime);
+        //}
+
         protected override void Update(GameTime gameTime)
         {
             if (GamePad.GetState(PlayerIndex.One).Buttons.Back == ButtonState.Pressed || Keyboard.GetState().IsKeyDown(Keys.Escape))
                 Exit();
 
-            TouchState = TouchPanel.GetState();
-            foreach (var touch in TouchState)
+            touchState = TouchPanel.GetState();
+            foreach (var touch in touchState)
             {
                 // Scale touch position
-                Vector2 pos = Vector2.Transform(touch.Position, Matrix.Invert(_graphics.Transform));
+                //Vector2 pos = Vector2.Transform(touch.Position, Matrix.Invert(graphics.Transform));
+                Vector2 pos = touch.Position;
 
                 // NEW TOUCH
                 if (touch.State == TouchLocationState.Pressed)
@@ -163,10 +293,10 @@ namespace Plasmid_Core
                     {
                         if (DeckArea.Contains(pos))
                         {
-                            FloatCard = Deck[Deck.Count - 1];
-                            FloatCard.Pos = new Vector2(DeckArea.X, DeckArea.Y);
+                            floatCard = Deck[Deck.Count - 1];
+                            floatCard.Pos = new Vector2(DeckArea.X, DeckArea.Y);
                             FloatOrigin = Deck;
-                            FloatOriginPos = FloatCard.Pos;
+                            FloatOriginPos = floatCard.Pos;
                             FloatTouchPos = pos;
                             Deck.RemoveAt(Deck.Count - 1);
                         }
@@ -175,11 +305,11 @@ namespace Plasmid_Core
                     for (int i = Hand.Count - 1; i >= 0; i--)
                         if (Hand[i].Touched(pos))
                         {
-                            FloatCard = Hand[i];
+                            floatCard = Hand[i];
                             FloatOrigin = Hand;
-                            FloatOriginPos = FloatCard.Pos;
+                            FloatOriginPos = floatCard.Pos;
                             FloatTouchPos = pos;
-                            Hand.Remove(FloatCard);
+                            Hand.Remove(floatCard);
                             break;
                         }
                 }
@@ -188,33 +318,33 @@ namespace Plasmid_Core
                 else if (touch.State == TouchLocationState.Moved)
                 {
                     Debug.WriteLine("DRAG");
-                    if (FloatCard != null)
-                        FloatCard.Pos = Vector2.Subtract(Vector2.Add(FloatOriginPos, pos), FloatTouchPos);
+                    if (floatCard != null)
+                        floatCard.Pos = Vector2.Subtract(Vector2.Add(FloatOriginPos, pos), FloatTouchPos);
                 }
 
                 // RELEASED TOUCH
                 else if (touch.State == TouchLocationState.Released)
                 {
-                    Debug.WriteLine("RELEASING CARD, null = ", FloatCard == null);
-                    if (FloatCard != null)
+                    Debug.WriteLine("RELEASING CARD, null = ", floatCard == null);
+                    if (floatCard != null)
                     {
                         // Consider middle of floating card instead of touch position for drop
-                        Vector2 middle = new Vector2(FloatCard.Pos.X + Card.Width / 2, FloatCard.Pos.Y + Card.Height / 2);
+                        Vector2 middle = new Vector2(floatCard.Pos.X + Card.Width / 2, floatCard.Pos.Y + Card.Height / 2);
 
                         if (HandArea.Contains(middle))
-                            Hand.Add(FloatCard);
+                            Hand.Add(floatCard);
                         else if (PlayArea.Contains(middle) && FloatOrigin == Hand)
                         {
-                            BattleDemo.PlayCard(FloatCard);
-                            Discard.Add(FloatCard);
+                            BattleDemo.PlayCard(this.floatCard);
+                            Discard.Add(floatCard);
                         }
                         else
                         {
-                            FloatOrigin.Add(FloatCard);
-                            FloatCard.Pos = FloatOriginPos;
+                            FloatOrigin.Add(floatCard);
+                            floatCard.Pos = FloatOriginPos;
                         }
                     }
-                    FloatCard = null;
+                    floatCard = null;
                 }
             }
 
@@ -225,40 +355,63 @@ namespace Plasmid_Core
 
         protected override void Draw(GameTime gameTime)
         {
+            this.screen.Set();
             GraphicsDevice.Clear(Color.Black);
 
-            _spriteBatch.Begin(SpriteSortMode.Immediate, null, SamplerState.PointClamp, null, null, null, _graphics.Transform);
+            // TODO: implement Transforms for shapes other than polys
+            Transform defaultTrans = new Transform(Vector2.Zero, 0f, 1f);
+            Transform playerMicrobeTrans = new Transform(new Vector2(142,193), 0f, 1f);
+            Transform enemyMicrobeTrans = new Transform(new Vector2(0,288), 0f, 1f);
 
-            // Draw background
-            _spriteBatch.Draw(BackgroundTexture, Vector2.Zero, BackgroundColor);
-            _spriteBatch.DrawString(BattleFont, "PLASMID", new Vector2(MessageArea.X+5, MessageArea.Y+8), Color.Black);
+            sprites.Begin(null);
 
-            // Draw microbes
-            _spriteBatch.Draw(microbeA.Sprite, PlayerSpritePos, Color.White);
-            _spriteBatch.Draw(microbeB.Sprite, EnemySpritePos, Color.White);
+            // Draw Background
+            sprites.Draw(BackgroundTexture, Vector2.Zero, Vector2.Zero, BackgroundColor);
 
-            // Draw HP bars
-            _spriteBatch.Draw(HpPanelLeftTexture, HpPanelLeftPos, BackgroundColor);
-            _spriteBatch.Draw(HpPanelRightTexture, HpPanelRightPos, BackgroundColor);
-            double playerbar = (120.0 * ((double)BattleDemo.PlayerMicrobe.HP / BattleDemo.PlayerMicrobe.MaxHP));
-            double opponentbar = (120.0 * ((double)BattleDemo.OpponentMicrobe.HP / BattleDemo.OpponentMicrobe.MaxHP));
-            Debug.WriteLine(playerbar + "   " + opponentbar);
-            _spriteBatch.Draw(BlankRectangle, new Rectangle((int)HpBarLeftPos.X + 1, (int)HpBarLeftPos.Y + 3, (int)playerbar, 13), Color.LimeGreen);
-            _spriteBatch.Draw(BlankRectangle, new Rectangle((int)HpBarRightPos.X + 1, (int)HpBarRightPos.Y + 3, (int)opponentbar, 13), Color.LimeGreen);
-            _spriteBatch.Draw(HpBarTexture, HpBarLeftPos, Color.White);
-            _spriteBatch.Draw(HpBarTexture, HpBarRightPos, Color.White);
+            // Draw Title 
+            // _spriteBatch.DrawString(BattleFont, "PLASMID", new Vector2(MessageArea.X + 5, MessageArea.Y + 8), Color.Black);
 
+            // Draw Microbes
+            GraphUtils.Triangulate(microbeA.Vertices, out int[] trianglesA, out string errorMessageA);
+            GraphUtils.Triangulate(microbeB.Vertices, out int[] trianglesB, out string errorMessageB);
 
-            // logo
+            shapes.Begin(null);
+            shapes.DrawPolygonFill(microbeA.Vertices, trianglesA, playerMicrobeTrans, GraphUtils.GetRandomColor(this.rand));
+            shapes.DrawPolygon(microbeA.Vertices, playerMicrobeTrans, 3, GraphUtils.GetRandomColor(this.rand));
+            shapes.DrawPolygonFill(microbeB.Vertices, trianglesB, enemyMicrobeTrans, GraphUtils.GetRandomColor(this.rand));
+            shapes.DrawPolygon(microbeB.Vertices, enemyMicrobeTrans, 3, GraphUtils.GetRandomColor(this.rand));
+            shapes.End();
+            //_spriteBatch.Draw(microbeA.Sprite, PlayerSpritePos, Color.White);
+            //_spriteBatch.Draw(microbeB.Sprite, EnemySpritePos, Color.White);
+
+            // Draw HP Bars
+            sprites.Draw(HpPanelLeftTexture, Vector2.Zero, HpPanelLeftPos, BackgroundColor);
+            sprites.Draw(HpPanelRightTexture, Vector2.Zero, HpPanelRightPos, BackgroundColor);
+            sprites.End();
+
+            float playerbar = 120f * (BattleDemo.PlayerMicrobe.HP / BattleDemo.PlayerMicrobe.MaxHP);
+            float opponentbar = 120f * (BattleDemo.OpponentMicrobe.HP / BattleDemo.OpponentMicrobe.MaxHP);
+
+            shapes.Begin(null);
+            shapes.DrawRectangleFill(HpBarLeftPos.X + 1, HpBarLeftPos.Y + 3, playerbar, 13, Color.LimeGreen);
+            shapes.DrawRectangleFill(HpBarRightPos.X + 1, HpBarRightPos.Y + 3, playerbar, 13, Color.LimeGreen);
+            shapes.End();
+
+            sprites.Begin(null);
+
+            sprites.Draw(HpBarTexture, Vector2.Zero, HpBarLeftPos, Color.White);
+            sprites.Draw(HpBarTexture, Vector2.Zero, HpBarRightPos, Color.White);
+
+            // Draw logo
             //_spriteBatch.Draw(Logo, new Vector2(PlayArea.X + (PlayArea.Width - Logo.Width)/2, PlayArea.Y + (PlayArea.Height - Logo.Height)/2), Color.White);
 
             // Draw deck
             if (Deck.Count > 0)
-                _spriteBatch.Draw(Card.CardBackTexture, DeckArea, Card.CardBackColor);
+                sprites.Draw(Card.CardBackTexture, null, DeckArea, Card.CardBackColor);
 
             // Draw discard
             if (Discard.Count > 0)
-                _spriteBatch.Draw(Discard[Discard.Count-1].Texture, DiscardArea, Color.White);
+                sprites.Draw(Discard[Discard.Count-1].Texture, null, DiscardArea, Color.White);
 
             // Draw hand cards
             if (Hand.Count > 0)
@@ -266,25 +419,35 @@ namespace Plasmid_Core
                 {
                     if (card.Texture == null)
                         continue;
-                    _spriteBatch.Draw(card.Texture, card.Pos, Color.White);
+                    sprites.Draw(card.Texture, Vector2.Zero, card.Pos, Color.White);
                 }
                 
 
             // Draw floating card w/ shadow
-            if (FloatCard != null)
+            if (floatCard != null)
             {
                 // shadow
-                _spriteBatch.Draw(Card.CardTexture, FloatCard.Pos, new Color(Color.Black, 50));
+                sprites.Draw(Card.CardTexture, Vector2.Zero, floatCard.Pos, new Color(Color.Black, 50));
                 // card (draw card back if from the deck)
                 if (FloatOrigin == Deck)
-                    _spriteBatch.Draw(Card.CardBackTexture, Vector2.Add(FloatCard.Pos, new Vector2(5, -10)), Card.CardBackColor);
+                    sprites.Draw(Card.CardBackTexture, Vector2.Zero, Vector2.Add(floatCard.Pos, new Vector2(5, -10)), Card.CardBackColor);
                 else
-                    _spriteBatch.Draw(FloatCard.Texture, Vector2.Add(FloatCard.Pos, new Vector2(5, -10)), Color.White);
+                    sprites.Draw(floatCard.Texture, Vector2.Zero, Vector2.Add(floatCard.Pos, new Vector2(5, -10)), Color.White);
             }
-
             
+            sprites.End();
 
-            _spriteBatch.End();
+            //// Debugging: Area overlays
+            //shapes.Begin(null);
+            //shapes.DrawRectangleFill(this.PlayArea, new Color(Color.Pink, 50));
+            //shapes.DrawRectangleFill(this.HandArea, new Color(Color.Blue, 50));
+            //shapes.DrawRectangleFill(this.DeckArea, new Color(Color.Green, 50));
+            //shapes.DrawRectangleFill(this.DiscardArea, new Color(Color.Red, 50));
+            //shapes.End();
+
+
+            this.screen.UnSet();
+            this.screen.Present(this.sprites);
 
             base.Draw(gameTime);
         }

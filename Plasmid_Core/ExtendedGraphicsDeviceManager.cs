@@ -5,7 +5,7 @@ using System.Diagnostics;
 using System.Collections.Generic;
 using System.Text;
 
-namespace Plasmid_Core
+namespace Plasmid
 {
     class ExtendedGraphicsDeviceManager : GraphicsDeviceManager
     {

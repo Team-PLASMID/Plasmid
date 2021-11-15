@@ -2,7 +2,7 @@
 using System.Collections.Generic;
 using System.Text;
 
-namespace Plasmid_Core
+namespace Plasmid.Cards
 {
     class CardDeck : List<Card>
     {

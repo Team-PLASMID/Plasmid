@@ -1,12 +1,11 @@
 ﻿using System;
 using System.Collections.Generic;
-using System.IO;
-using System.Text;
 using Microsoft.Xna.Framework;
 using Microsoft.Xna.Framework.Graphics;
-using Microsoft.Xna.Framework.Input;
+using Plasmid.Cards;
+using Plasmid.Graphics;
 
-namespace Plasmid_Core
+namespace Plasmid
 {
 class Microbe
     {
@@ -17,24 +16,31 @@ class Microbe
         // Sprite gen params
         public static int X_DIM = 128;
         public static int Y_DIM = 128;
-        public static Point CENTER = new Point(X_DIM / 2, Y_DIM / 2);
-        public static double MAX_RADIUS_FACTOR = 2;
-        public static double MIN_RADIUS_FACTOR = 0.5;
+        public static Vector2 CENTER = new Vector2(X_DIM / 2, Y_DIM / 2);
+        public static float MAX_RADIUS_FACTOR = 1.8f;     //TODO: hard max/min instead of factor? maybe a function to scale down oversized polygons?
+        public static double MIN_RADIUS_FACTOR = .6f;
 
-        public String Genome { get; set; }
-        public int A { get; set; }
-        public int G { get; set; }
-        public int T { get; set; }
-        public int C { get; set; }
-        public List<Card> Deck { get; set; }
-        public Texture2D Sprite { get; set; }
+        private String genome;
+        private int a;
+        private int g;
+        private int t;
+        private int c;
+        private List<Card> deck;
+
+        public Vector2[] Vertices { get; set; }
+        public int[] Triangles { get; set; }
+        public Color WallColor { get; set; }
+        public Color CytoColor { get; set; }
+
+        //public RenderTarget2D Sprite { get; set; }
+
 
         public int MaxHP { get; set; }
         public int HP { get; set; }
 
         public Microbe()
         {
-            Deck = new List<Card>();
+            deck = new List<Card>();
             MaxHP = 20;
             HP = MaxHP;
             //Sprite = generateSprite();
@@ -56,11 +62,11 @@ class Microbe
             Random rand = new Random();
             while (true)
             {
-                Genome = "";
-                A = 0;
-                G = 0;
-                T = 0;
-                C = 0;
+                genome = "";
+                a = 0;
+                g = 0;
+                t = 0;
+                c = 0;
                 for (int i = 0; i < LENGTH; i++)
                 {
                     int caseSwitch = rand.Next(0, 4);
@@ -69,51 +75,51 @@ class Microbe
                     {
                         // 0: a
                         case 0:
-                            Genome += "a";
-                            A++;
+                            genome += "a";
+                            a++;
                             break;
                         // 1: g
                         case 1:
-                            Genome += "g";
-                            G++;
+                            genome += "g";
+                            g++;
                             break;
                         // 2: t
                         case 2:
-                            Genome += "t";
-                            T++;
+                            genome += "t";
+                            t++;
                             break;
                         // 3: c 
                         case 3:
-                            Genome += "c";
-                            C++;
+                            genome += "c";
+                            c++;
                             break;
                         // unexpected value
                         default:
                             break;
                     }
                     // stop generating if one nucleotide exceeds max allowed
-                    if (A > max || G > max || T > max || C > max)
+                    if (a > max || g > max || t > max || c > max)
                         break;
                 }
                 // make sure sequence is correct length (meaning we didn't break early)
                 // as long as all nucleotides have at least the min, accept the sequence.
-                if (Genome.Length == LENGTH)
-                    if (A >= min && G >= min && T >= min && C >= min)
+                if (genome.Length == LENGTH)
+                    if (a >= min && g >= min && t >= min && c >= min)
                         return;
             }
         }
 
-        public void GenSprite(GraphicsDevice graphicsDevice)
+        public void TestGen(GraphicsDevice graphics)
         {
             Random rand = new Random();
 
             // calculate cell wall parameters
-            int aveRad = A + G;                                             // 20-40        A+G
-            double angVar = .5 * Math.Tanh(C / T - 1) + .5;                 // 0.0-1.0      C:T
-            double radVar = .2 * Math.Tanh(4.0 / 5.0 * (C / T) - 1) + .2;   // 0.00-0.15    A:G
+            int aveRad = a + this.g;                                        // 20-40        A+G
+            double angVar = .5 * Math.Tanh(c / t - 1) + .5;                 // 0.0-1.0      C:T
+            double radVar = .2 * Math.Tanh(4.0 / 5.0 * (c / t) - 1) + .2;   // 0.00-0.15    A:G
 
-            int max = Math.Max(Math.Max(A, G), Math.Max(T, C));
-            int min = Math.Min(Math.Min(A, G), Math.Min(T, C));
+            int max = Math.Max(Math.Max(a, this.g), Math.Max(t, c));
+            int min = Math.Min(Math.Min(a, this.g), Math.Min(t, c));
 
             int verts = Convert.ToInt32(8 * Math.Tanh(max / min / 16 - 1) + 10);    // 4-16         MAX:MIN
 
@@ -122,49 +128,179 @@ class Microbe
             int g = 0;
             int b = 0;
             // attack > defense -> RED
-            if (A >= G)
+            if (a >= this.g)
             {
                 r = 255;
                 // buff > debuff -> ORANGE
-                if (T >= C)
-                    g = 150 * (T / A);
+                if (t >= c)
+                    g = 150 * (t / a);
                 // debuff > buff -> MAGENTA
                 else
-                    b = 200 * (C / A);
+                    b = 200 * (c / a);
             }
             // defense > attack -> GREEN
             else
             {
                 g = 255;
                 // debuff > buff -> TEAL
-                if (C >= T)
-                    b = 200 * (C / G);
+                if (c >= t)
+                    b = 200 * (c / this.g);
                 // buff > debuff -> YELLOW
                 else
                 {
                     b = 100;
-                    r = 100 + 155 * (T / G);
+                    r = 100 + 155 * (t / this.g);
                 }
             }
 
-            System.Drawing.Color baseColor = System.Drawing.Color.FromArgb(255, r, g, b);
+            this.CytoColor = new Color(r, g, b);
+            this.WallColor = Color.Navy;
 
             // generate cell wall polygon
-            Point[] wallPoints = GenPolygonPoints(rand, 0.25, CENTER, aveRad, angVar, radVar, verts);
-            wallPoints = ExpandPoints(wallPoints, CENTER);
+            this.Vertices = GenCellWallVertices(rand, CENTER, aveRad, angVar, radVar, verts);
+            GraphUtils.Triangulate(this.Vertices, out int[] triangles, out string errorMessage);
+            this.Triangles = triangles;
 
-            System.Drawing.PointF[] convertedPoints = new System.Drawing.PointF[wallPoints.Length];
-            for (int i = 0; i < convertedPoints.Length; i++)
-                convertedPoints[i] = new System.Drawing.PointF(wallPoints[i].X, wallPoints[i].Y);
+        }
 
-            System.Drawing.Bitmap bmp = new System.Drawing.Bitmap(X_DIM, Y_DIM);
-            System.Drawing.Graphics graphics = System.Drawing.Graphics.FromImage(bmp);
-            System.Drawing.Pen pen1 = new System.Drawing.Pen(System.Drawing.Color.Navy, 3);
-            System.Drawing.Brush brush1 = new System.Drawing.SolidBrush(baseColor);
+        public void GenSprite(GraphicsDevice graphicsDevice)
+        {
+            Random rand = new Random();
+
+            // calculate cell wall parameters
+            int aveRad = a + this.g;                                             // 20-40        A+G
+            double angVar = .5 * Math.Tanh(c / t - 1) + .5;                 // 0.0-1.0      C:T
+            double radVar = .2 * Math.Tanh(4.0 / 5.0 * (c / t) - 1) + .2;   // 0.00-0.15    A:G
+
+            int max = Math.Max(Math.Max(a, this.g), Math.Max(t, c));
+            int min = Math.Min(Math.Min(a, this.g), Math.Min(t, c));
+
+            int verts = Convert.ToInt32(8 * Math.Tanh(max / min / 16 - 1) + 10);    // 4-16         MAX:MIN
+
+            // determine base color
+            int r = 0;
+            int g = 0;
+            int b = 0;
+            // attack > defense -> RED
+            if (a >= this.g)
+            {
+                r = 255;
+                // buff > debuff -> ORANGE
+                if (t >= c)
+                    g = 150 * (t / a);
+                // debuff > buff -> MAGENTA
+                else
+                    b = 200 * (c / a);
+            }
+            // defense > attack -> GREEN
+            else
+            {
+                g = 255;
+                // debuff > buff -> TEAL
+                if (c >= t)
+                    b = 200 * (c / this.g);
+                // buff > debuff -> YELLOW
+                else
+                {
+                    b = 100;
+                    r = 100 + 155 * (t / this.g);
+                }
+            }
+
+            Color baseColor = new Color(r, g, b);
+            Color wallColor = Color.Navy;
+
+            // generate cell wall polygon
+            this.Vertices = GenCellWallVertices(rand, CENTER, aveRad, angVar, radVar, verts);
+            //wallPoints = ExpandPoints(wallPoints, CENTER);
+
+            /*
+            // here's an ugly stupid conversion from Point to Vector2 :p
+            Vector2[] converted = new Vector2[wallPoints.Length+1];
+            for (int i = 0; i < wallPoints.Length; i++)
+                converted[i] = new Vector2(wallPoints[i].X, wallPoints[i].Y);
+            converted[converted.Length - 1] = converted[0];
+            */
+
+            // draw cell wall
+            //Sprite = new RenderTarget2D(graphicsDevice, X_DIM, Y_DIM);
+            //graphicsDevice.SetRenderTarget(Sprite);
+            //graphicsDevice.Clear(Color.Transparent);
+            //Brush brush = new SolidColorBrush(baseColor);
+
+            //BasicEffect basicEffect = new BasicEffect(graphicsDevice);
+            //basicEffect.VertexColorEnabled = true;
+            //basicEffect.LightingEnabled = false;
+            ////basicEffect.World = Matrix.CreateOrthographicOffCenter(0, graphicsDevice.Viewport.Width, graphicsDevice.Viewport.Height, 0, 0, 1);
+            //EffectTechnique effectTechnique = basicEffect.Techniques[0];
+            //EffectPassCollection effectPassCollection = effectTechnique.Passes;
+
+            //VertexBuffer vertexBuffer = new VertexBuffer(graphicsDevice, typeof(VertexPositionColor), wallPoints.Length, BufferUsage.WriteOnly);
+            //vertexBuffer.SetData<VertexPositionColor>(wallPoints);
+            //graphicsDevice.SetVertexBuffer(vertexBuffer);
+            //foreach(EffectPass pass in effectPassCollection)
+            //{
+            //    pass.Apply();
+            //    graphicsDevice.DrawUserPrimitives(PrimitiveType.LineStrip, wallPoints, 0, wallPoints.Length-1);
+            //}
+            //graphicsDevice.SetRenderTarget(null);
+       
+            /*
+            drawBatch.Begin();
+            //drawBatch.FillCircle(Brush.Black, new Vector2(CENTER.X, CENTER.Y), 50);
+            drawBatch.FillPath(brush, converted);
+            //drawBatch.DrawPath(new GraphicsPath(new Pen(Color.Black, 3), converted));
+            drawBatch.End();
+            graphicsDevice.SetRenderTarget(null);
+            */
+
+
+            /*
+            // draw cell wall
+            Sprite = new RenderTarget2D(graphicsDevice, X_DIM, Y_DIM);
+            graphicsDevice.SetRenderTarget(Sprite);
+            graphicsDevice.Clear(Color.Transparent);
+            sb.Begin();
+            for (int i = 0; i < wallPoints.Length-1; i++)
+                sb.BorderLine(converted[i], converted[i + 1], 0f, Color.Black, 1);
+            sb.BorderLine(converted[converted.Length - 1], converted[0], 0f, Color.Black, 1);
+            sb.End();
+            graphicsDevice.SetRenderTarget(null);
+            */
+
+            /*
+            // Before refactoring GenPolygonPoints() and ExpandPoints(),
+            // I want to make sure MonoGame.Extended.Shapes works.
+            // So here's an ugly stupid conversion from Point to Vector2 :p
+            Vector2[] converted = new Vector2[wallPoints.Length];
+            for (int i = 0; i < converted.Length; i++)
+                converted[i] = new Vector2(wallPoints[i].X, wallPoints[i].Y);
+            
+            Polygon polygon = new Polygon(converted);
+            PrimitiveBatch primitiveBatch = new PrimitiveBatch(graphicsDevice);
+            PrimitiveDrawing primitiveDrawing = new PrimitiveDrawing(primitiveBatch);
+            Matrix localProjection = Matrix.CreateOrthographicOffCenter(0f, graphicsDevice.Viewport.Width, graphicsDevice.Viewport.Height, 0f, 0f, 1f);
+            Matrix localView = Matrix.Identity;
+
+            Texture2D tx = new RenderTarget2D(graphicsDevice, X_DIM, Y_DIM);
+            primitiveBatch.Begin(ref localProjection, ref localView);
+            primitiveDrawing.DrawSolidPolygon(Vector2.Zero, polygon.Vertices, baseColor);
+            primitiveDrawing.DrawPolygon(Vector2.Zero, polygon.Vertices, Color.Black);
+            primitiveBatch.End();
+            graphicsDevice.SetRenderTarget(null);
+
+            Sprite = tx;
+            */
+
+            /*
+            Bitmap bmp = new Bitmap(X_DIM, Y_DIM);
+            Graphics graphics = Graphics.FromImage(bmp);
+            Pen pen1 = new Pen(Color.Navy, 3);
+            Brush brush1 = new SolidBrush(baseColor);
             //Pen pen2 = new Pen(COLOR_3, LINE_WEIGHT);
             //Brush brush2 = new SolidBrush(COLOR_4);
-            graphics.FillPolygon(brush1, convertedPoints);
-            graphics.DrawPolygon(pen1, convertedPoints);
+            graphics.FillPolygon(brush1, wallPoints);
+            graphics.DrawPolygon(pen1, wallPoints);
             //graphics.FillPolygon(brush2, points2);
             //graphics.DrawPolygon(pen2, points2);
             //bmp.Save(name + "\\sample_" + (i + 1) + ".png");
@@ -172,16 +308,17 @@ class Microbe
             Texture2D tx = null;
             using (MemoryStream s = new MemoryStream())
             {
-                bmp.Save(s, System.Drawing.Imaging.ImageFormat.Png);
+                bmp.Save(s, Imaging.ImageFormat.Png);
                 s.Seek(0, SeekOrigin.Begin);
                 tx = Texture2D.FromStream(graphicsDevice, s);
             }
 
             Sprite = tx;
+            */
         }
 
         // helper function for GenSprite()
-        public static Point[] GenPolygonPoints(Random rand, double slice, Point center, int aveRadius, double irregularity, double spikeyness, int numVerts)
+        public static Vector2[] GenCellWallVertices(Random rand, Vector2 center, int aveRadius, double irregularity, double spikeyness, int numVerts, double slice = 0.25)
         {
             slice = slice * 2 * Math.PI;
             irregularity = irregularity * slice / numVerts;
@@ -205,7 +342,7 @@ class Microbe
                 angleSteps[i] = angleSteps[i] / k;
 
             // generate points
-            List<Point> points = new List<Point>();
+            List<Vector2> points = new List<Vector2>();
             double angle = 0;
             for (int i = 0; i < numVerts; i++)
             {
@@ -217,10 +354,10 @@ class Microbe
                     r_i = MIN_RADIUS_FACTOR * aveRadius;
                 double x = center.X + r_i * Math.Cos(angle);
                 double y = center.Y + r_i * Math.Sin(angle);
-                points.Add(new Point(Convert.ToInt32(Math.Round(x)), Convert.ToInt32(Math.Round(y))));
+                points.Add(new Vector2(Convert.ToInt32(Math.Round(x)), Convert.ToInt32(Math.Round(y))));
             }
 
-            return points.ToArray();
+            return ExpandPoints(points.ToArray(), center);
         }
 
         // helper function for GenPolygonPoints
@@ -233,33 +370,33 @@ class Microbe
         }
 
         // helper function for GenSprite()
-        private static Point[] ExpandPoints(Point[] quadrant, Point center)
+        private static Vector2[] ExpandPoints(Vector2[] baseVertices, Vector2 center, int factor = 4)
         {
-            Point[] points = new Point[quadrant.Length * 4];
+            Vector2[] expandedVertices = new Vector2[baseVertices.Length * 4];
 
             int j = 0;
-            for (int i = 0; i < quadrant.Length; i++)
+            for (int i = 0; i < baseVertices.Length; i++)
             {
-                points[j] = quadrant[i];
+                expandedVertices[j] = baseVertices[i];
                 j++;
             }
-            for (int i = quadrant.Length - 1; i >= 0; i--)
+            for (int i = baseVertices.Length - 1; i >= 0; i--)
             {
-                points[j] = new Point(points[i].X - 2 * (points[i].X - center.X), points[i].Y);
+                expandedVertices[j] = new Vector2(expandedVertices[i].X - 2 * (expandedVertices[i].X - center.X), expandedVertices[i].Y);
                 j++;
             }
-            for (int i = 0; i < quadrant.Length; i++)
+            for (int i = 0; i < baseVertices.Length; i++)
             {
-                points[j] = new Point(points[i].X - 2 * (points[i].X - center.X), points[i].Y - 2 * (points[i].Y - center.Y));
+                expandedVertices[j] = new Vector2(expandedVertices[i].X - 2 * (expandedVertices[i].X - center.X), expandedVertices[i].Y - 2 * (expandedVertices[i].Y - center.Y));
                 j++;
             }
-            for (int i = quadrant.Length - 1; i >= 0; i--)
+            for (int i = baseVertices.Length - 1; i >= 0; i--)
             {
-                points[j] = new Point(points[i].X, points[i].Y - 2 * (points[i].Y - center.Y));
+                expandedVertices[j] = new Vector2(expandedVertices[i].X, expandedVertices[i].Y - 2 * (expandedVertices[i].Y - center.Y));
                 j++;
             }
 
-            return points;
+            return expandedVertices;
         }
         /* Procedurally generate a sprite texture based on the Genome string
         public static Texture2D generateSprite()
@@ -273,10 +410,10 @@ class Microbe
         public void PrintGenome()
         {
             Console.WriteLine("NUCLEOTIDE BREAKDOWN");
-            Console.WriteLine("A: " + A + " (" + Math.Round((double)A / LENGTH * 100, 2) + "%)");
-            Console.WriteLine("G: " + G + " (" + Math.Round((double)G / LENGTH * 100, 2) + "%)");
-            Console.WriteLine("T: " + T + " (" + Math.Round((double)T / LENGTH * 100, 2) + "%)");
-            Console.WriteLine("C: " + C + " (" + Math.Round((double)C / LENGTH * 100, 2) + "%)");
+            Console.WriteLine("A: " + a + " (" + Math.Round((double)a / LENGTH * 100, 2) + "%)");
+            Console.WriteLine("G: " + g + " (" + Math.Round((double)g / LENGTH * 100, 2) + "%)");
+            Console.WriteLine("T: " + t + " (" + Math.Round((double)t / LENGTH * 100, 2) + "%)");
+            Console.WriteLine("C: " + c + " (" + Math.Round((double)c / LENGTH * 100, 2) + "%)");
 
             int line = 0;
             Console.WriteLine("GENE SEQUENCE:");
@@ -289,8 +426,8 @@ class Microbe
                     for (int j = 0; j < 10; j++)
                     {
                         int c = j + 10 * i + 60 * line;
-                        if ( c < Genome.Length)
-                            Console.Write(Genome[c]);
+                        if ( c < genome.Length)
+                            Console.Write(genome[c]);
                         else
                         {
                             Console.WriteLine();

@@ -4,24 +4,23 @@ using System;
 using System.Collections.Generic;
 using System.Text;
 
-namespace Plasmid_Core
+namespace Plasmid.Cards
 {
     class CardHand : List<Card>, IDrawable
     {
         public Rectangle Area { get; set; }
-        public ExtendedGraphicsDeviceManager Graphics { get; set; }
-        public SpriteBatch SB { get; set;
-        }
+        //public ExtendedGraphicsDeviceManager Graphics { get; set; }
+        //public SpriteBatch SB { get; set; }
         public int DrawOrder { get; set; }
         public bool Visible { get; set; }
         public event EventHandler<EventArgs> DrawOrderChanged;
         public event EventHandler<EventArgs> VisibleChanged;
 
-        public CardHand(Rectangle area, ExtendedGraphicsDeviceManager graphics, SpriteBatch sb)
+        public CardHand(Rectangle area)
         {
             Area = area;
-            Graphics = graphics;
-            SB = sb;
+            //Graphics = graphics;
+            //SB = sb;
             DrawOrder = 10;
             Visible = true;
         }

@@ -3,7 +3,7 @@ using Android.Content.PM;
 using Android.OS;
 using Android.Views;
 using Microsoft.Xna.Framework;
-using Plasmid_Core;
+using Plasmid;
 
 namespace Plasmid_Android
 {
@@ -30,6 +30,19 @@ namespace Plasmid_Android
 
             SetContentView(_view);
             _game.Run();
+
+            //hopefully help with fullscreen issues
+            if (Build.VERSION.SdkInt >= BuildVersionCodes.P)
+                Window.Attributes.LayoutInDisplayCutoutMode = LayoutInDisplayCutoutMode.ShortEdges;
+
+            //hide nav buttons
+            _view.SystemUiVisibility = (StatusBarVisibility)(
+                SystemUiFlags.LayoutStable |
+                SystemUiFlags.LayoutHideNavigation |
+                SystemUiFlags.LayoutFullscreen |
+                SystemUiFlags.HideNavigation |
+                SystemUiFlags.Fullscreen |
+                SystemUiFlags.ImmersiveSticky);
         }
     }
 }

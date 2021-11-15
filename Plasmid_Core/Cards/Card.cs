@@ -6,7 +6,7 @@ using System.Text;
 using Microsoft.Xna.Framework.Content;
 using System.Diagnostics;
 
-namespace Plasmid_Core
+namespace Plasmid.Cards
 {
     [Flags]
     public enum EffectType { Damage=0, Block=1 }
@@ -20,6 +20,7 @@ namespace Plasmid_Core
         public static List<Card> All = new List<Card>();
         public static int Height = 96;
         public static int Width = 64;
+        public static Rectangle Rectangle;
         public static Color CardColor = Color.OldLace;
         public static Color CardBackColor = Color.CornflowerBlue;
         public static Color CardFrameColor = Color.DarkGoldenrod;
@@ -73,6 +74,8 @@ namespace Plasmid_Core
             CostT = t;
             CostC = c;
             Effects = effects;
+
+            Rectangle = new Rectangle((int)Pos.X, (int)Pos.Y, Width, Height);
         }
 
         public static Card New(Vector2 pos, string name, string text, string art, int a, int g, int t, int c, List<Effect> effects)
@@ -87,7 +90,7 @@ namespace Plasmid_Core
 
             return new Card(card.Name, card.Text, card.Art, card.Texture, card.CostA, card.CostG, card.CostT, card.CostC, card.Effects);
         }
-        public static void Load(ContentManager content, GraphicsDevice graphics, SpriteBatch sb)
+        public static void Load(ContentManager content, GraphicsDevice graphics)
         {
             // Textures
             CardTexture = content.Load<Texture2D>("card");
@@ -104,13 +107,16 @@ namespace Plasmid_Core
 
             // Build textures
             foreach (Card c in All)
-                c.BuildTexture(content, graphics, sb);
+                c.BuildTexture(content, graphics);
 
 
         }
 
-        public void BuildTexture(ContentManager content, GraphicsDevice graphics, SpriteBatch sb)
+        public void BuildTexture(ContentManager content, GraphicsDevice graphics)
         {
+            // TODO: replace SpriteBatch with Sprites
+            SpriteBatch sb = new SpriteBatch(graphics);
+
             Debug.WriteLine("\n\n BUILD SPRITE \n\n");
             Texture = new RenderTarget2D(graphics, CardTexture.Width, CardTexture.Height);
             graphics.SetRenderTarget(Texture);

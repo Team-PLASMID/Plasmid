@@ -5,14 +5,15 @@ VisualStudioVersion = 16.0.31005.135
 MinimumVisualStudioVersion = 10.0.40219.1
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Plasmid_Android", "Plasmid_Android\Plasmid_Android.csproj", "{99F0BCC4-54F1-4958-BD22-AE386ECE7CE6}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Plasmid_PC", "Plasmid_PC\Plasmid_PC.csproj", "{64463B80-65B5-4B30-A51B-105236077338}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Plasmid_PC", "Plasmid_PC\Plasmid_PC.csproj", "{64463B80-65B5-4B30-A51B-105236077338}"
 EndProject
-Project("{D954291E-2A0B-460D-934E-DC6B0785DB48}") = "Plasmid_Core", "Plasmid_Core\Plasmid_Core.shproj", "{A0CDBD0E-3A41-42B7-9425-A838BC2C7383}"
+Project("{D954291E-2A0B-460D-934E-DC6B0785DB48}") = "Plasmid", "Plasmid_Core\Plasmid.shproj", "{A0CDBD0E-3A41-42B7-9425-A838BC2C7383}"
 EndProject
 Global
 	GlobalSection(SharedMSBuildProjectFiles) = preSolution
 		Plasmid_Core\Plasmid_Core.projitems*{64463b80-65b5-4b30-a51b-105236077338}*SharedItemsImports = 5
 		Plasmid_Core\Plasmid_Core.projitems*{99f0bcc4-54f1-4958-bd22-ae386ece7ce6}*SharedItemsImports = 4
+		Draw2D\Draw2D.projitems*{a0cdbd0e-3a41-42b7-9425-a838bc2c7383}*SharedItemsImports = 13
 		Plasmid_Core\Plasmid_Core.projitems*{a0cdbd0e-3a41-42b7-9425-a838bc2c7383}*SharedItemsImports = 13
 	EndGlobalSection
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
