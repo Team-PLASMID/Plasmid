@@ -21,11 +21,11 @@ namespace Plasmid
         
         public void PlayCard(Card card)
         {
-            foreach (Effect effect in card.Effects)
+            foreach (CardEffect effect in card.CardEffects)
                 switch(effect.Type)
                 {
                     //case EffectType.Block:
-                    case EffectType.Damage:
+                    case CardEffectType.Damage:
                         if (PlayerTurn)
                             Damage(OpponentMicrobe, effect.Value);
                         else

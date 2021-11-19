@@ -5,7 +5,7 @@ using Microsoft.Xna.Framework.Graphics;
 using Plasmid.Cards;
 using Plasmid.Graphics;
 
-namespace Plasmid
+namespace Plasmid.Cards
 {
 class Microbe
     {
@@ -357,7 +357,7 @@ class Microbe
                 points.Add(new Vector2(Convert.ToInt32(Math.Round(x)), Convert.ToInt32(Math.Round(y))));
             }
 
-            return ExpandPoints(points.ToArray(), center);
+            return GraphUtils.RemoveColinear(ExpandPoints(points.ToArray(), center));
         }
 
         // helper function for GenPolygonPoints

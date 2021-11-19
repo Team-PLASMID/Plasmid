@@ -4,14 +4,14 @@ using System;
 
 namespace Plasmid.Graphics
 {
-    public sealed class Sprites : IDisposable
+    public sealed class SpriteBatcher : IDisposable
     {
         private bool isDisposed;
         private Game game;
         private SpriteBatch sprites;
         private BasicEffect effect;
 
-        public Sprites(Game game)
+        public SpriteBatcher(Game game)
         {
             if (game is null)
                 throw new ArgumentNullException("game");
@@ -40,6 +40,7 @@ namespace Plasmid.Graphics
             this.isDisposed = true;
         }
 
+        public void Begin() { this.Begin(null); }
         public void Begin(Camera camera, bool isTextureFilteringEnabled = false)
         {
             SamplerState sampler = SamplerState.PointClamp;
@@ -88,6 +89,9 @@ namespace Plasmid.Graphics
             this.sprites.Draw(texture, destinationRectangle, sourceRectangle, color, 0f, Vector2.Zero, SpriteEffects.FlipVertically, 0f);
         }
 
-        // TODO: DrawText()
+        public void DrawString(SpriteFont font, string text, Vector2 position, Color color)
+        {
+            this.sprites.DrawString(font, text, position, color);
+        }
     }
 }

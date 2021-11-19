@@ -5,7 +5,7 @@ using Microsoft.Xna.Framework;
 
 namespace Plasmid.Graphics
 {
-    public enum WindingOrder { CW, CCW }
+    public enum WindingOrder { Invalid, CW, CCW }
 
     public static class GraphUtils
     {
@@ -83,13 +83,12 @@ namespace Plasmid.Graphics
 
         public static bool Triangulate(Vector2[] vertices, out int[] triangles, out string errorMessage)
         {
-            Debug.WriteLine("Triangulate()");
-            // check vert is ear
-            // 1 acute angle
-            // 2 triangle formed by adjacent verts doesn't contain any other verts
-
             errorMessage = string.Empty;
             triangles = null;
+
+            //Debug.WriteLine("Vertices:");
+            //foreach (var item in vertices)
+            //    Debug.WriteLine("  " + item.X + ", " + item.Y);
 
             if (vertices is null)
             {
@@ -107,8 +106,6 @@ namespace Plasmid.Graphics
                 return false;
             }
 
-            Debug.WriteLine("passed checks");
-
             //if (!IsSimplePolygon(vertices))
             //{
             //    errorMessage = "not simple polygon";
@@ -122,21 +119,23 @@ namespace Plasmid.Graphics
             //    return false;
             //}
 
-            //ComputePolygonArea(vertices, out float area, out WindingOrder windingOrder);
+            ComputePolygonArea(vertices, out float area, out WindingOrder windingOrder);
 
-            //if (windingOrder is WindingOrder.Invalid)
-            //{
-            //    errorMessage = "invalid polygon";
-            //    return false;
-            //}
+            if (windingOrder is WindingOrder.Invalid)
+            {
+                errorMessage = "invalid polygon";
+                return false;
+            }
 
-            //if (windingOrder is WindingOrder.CCW)
-            //    Array.Reverse(vertices);
-            Array.Reverse(vertices);
+            if (windingOrder is WindingOrder.CCW)
+                Array.Reverse(vertices);
+
 
             List<int> indexList = new List<int>();
             for (int i = 0; i < vertices.Length; i++)
                 indexList.Add(i);
+
+            // TODO: remove indices of vertices with colinear edges
 
             int totalTriangleCount = vertices.Length - 2;
             int totalTriangleIndexCount = totalTriangleCount * 3;
@@ -145,7 +144,6 @@ namespace Plasmid.Graphics
             int triangleIndexCount = 0;
 
 
-            Debug.WriteLine("reached while");
             while (indexList.Count > 3)
             {
                 for (int i = 0; i < indexList.Count; i++)
@@ -162,8 +160,9 @@ namespace Plasmid.Graphics
                     Vector2 va_to_vc = vc - va;
 
                     // check convex
-                    if (GraphUtils.Cross(va_to_vb, va_to_vc) < 0f)
+                    if (IsPointConvex(vertices, indexList, i))
                     {
+                        Debug.WriteLine("   Convex. NO EAR.");
                         continue;
                     }
 
@@ -181,10 +180,9 @@ namespace Plasmid.Graphics
                             isEar = false;
                             break;
                         }
-                        
                     }
 
-                    if(isEar)
+                    if (isEar)
                     {
                         triangles[triangleIndexCount++] = b;
                         triangles[triangleIndexCount++] = a;
@@ -194,6 +192,7 @@ namespace Plasmid.Graphics
 
                         break;
                     }
+
                 }
             }
 
@@ -203,25 +202,77 @@ namespace Plasmid.Graphics
 
             return true;
         }
+        
+        public static Vector2[] RemoveColinear(Vector2[] vertices)
+        {
+            if (vertices is null || vertices.Length <= 3)
+                return vertices;
+
+            List<Vector2> newVertices = new List<Vector2>();
+            Vector2 a;
+            Vector2 b;
+            for (int i = 0; i < vertices.Length; i++)
+            {
+                a = GetItem(vertices, i - 1) - vertices[i];
+                b = GetItem(vertices, i + 1) - vertices[i];
+                if (Math.Round(GetAngle(a, b), 2) != Math.Round(Math.PI, 2))
+                    newVertices.Add(vertices[i]);
+                //else
+                //    throw new Exception("NOT A DRILL!! FOUND A COLINEAR VERTEX!\n" +
+                //        "\npoint: " + vertices[i] +
+                //        "\nprev: " + GetItem(vertices, i - 1) +
+                //        "\nnext: " + GetItem(vertices, i + 1) +
+                //        "\nvertex a: " + a +
+                //        "\nvertex b: " + b +
+                //        "\nangle: " + GetAngle(a, b) );
+            }
+
+            return newVertices.ToArray();
+        }
+
+        public static float GetAngle(Vector2 a, Vector2 b)
+        {
+            //float result = (float)Math.Atan2(b.Y - a.Y, b.X - a.X);
+            float result = (float)Math.Acos((a.X * b.X + a.Y * b.Y) / (Math.Sqrt(a.X * a.X + a.Y * a.Y) * Math.Sqrt(b.X * b.X + b.Y * b.Y)));
+            return result;
+        }
+
+        public static bool IsPointConvex(Vector2[] vertices, List<int> indexList, int ind)
+        {
+            int iPoint = indexList[ind];
+            int iPrev = GetItem(indexList, ind - 1);
+            int iNext = GetItem(indexList, ind + 1);
+
+            Vector2 point = vertices[iPoint];
+            Vector2 prev = vertices[iPrev];
+            Vector2 next = vertices[iNext];
+
+
+            //float angle = GetAngle(prev - point, next - point);
+            //if (angle < Math.PI)
+            //    return false;
+            //else
+            //    return true;
+
+            float dx1 = point.X - prev.X;
+            float dy1 = point.Y - prev.Y;
+            float dx2 = next.X - point.X;
+            float dy2 = next.Y - point.Y;
+
+            float zcrossproduct = dx1 * dy2 - dy1 * dx2;
+
+            if (zcrossproduct < 0)
+                return false;
+            else
+                return true;
+        }
 
         public static bool IsPointInTriangle(Vector2 p, Vector2 a, Vector2 b, Vector2 c)
         {
-            Vector2 ab = b - a;
-            Vector2 bc = c - b;
-            Vector2 ca = a - c;
-
-            Vector2 ap = p - a; 
-            Vector2 bp = p - b; 
-            Vector2 cp = p - c;
-
-            float cross1 = GraphUtils.Cross(ab, ap);
-            float cross2 = GraphUtils.Cross(bc, bp);
-            float cross3 = GraphUtils.Cross(ca, cp);
-
-            if (cross1 > 0f || cross2 > 0f || cross3 > 0f)
+            if (Cross(b - a, p - a) > 0f || Cross(c - b, p - b) > 0f || Cross(a - c, p - c) > 0f)
                 return false;
-
-            return true;
+            else
+                return true;
         }
 
         // TODO
@@ -236,10 +287,31 @@ namespace Plasmid.Graphics
             throw new NotImplementedException();
         }
 
-        //TODO
         public static void ComputePolygonArea(Vector2[] vertices, out float area, out WindingOrder windingOrder)
         {
-            throw new NotImplementedException();
+            area = 0f;
+            windingOrder = WindingOrder.Invalid;
+
+            for (int i = 0; i < vertices.Length; i++)
+            {
+                Vector2 va = vertices[i];
+                Vector2 vb = vertices[(i + 1) % vertices.Length];
+
+                float width = vb.X - va.X;
+                float height = (vb.Y + va.Y) / 2f;
+
+                area += width * height;
+
+                if (area < 0)
+                {
+                    area = -area;
+                    windingOrder = WindingOrder.CCW;
+                }
+                else
+                    windingOrder = WindingOrder.CW;
+                 
+            }
+
         }
 
 
@@ -256,6 +328,10 @@ namespace Plasmid.Graphics
             return mean + stdDev * randStdNormal; //random normal(mean,stdDev^2)
         }
 
+        public static float Distance(Vector2 a, Vector2 b)
+        {
+            return (float)Math.Sqrt(Math.Pow((b.X - a.X), 2) + Math.Pow((b.Y - a.Y), 2));
+        }
 
 
 

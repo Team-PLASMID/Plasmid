@@ -4,7 +4,7 @@ using System;
 
 namespace Plasmid.Graphics
 {
-    class Shapes : IDisposable
+    public class ShapeBatcher : IDisposable
     {
 
         public static readonly int MaxVertexCount = 1024;
@@ -28,7 +28,7 @@ namespace Plasmid.Graphics
         private bool isDisposed;
 
 
-        public Shapes(Game game)
+        public ShapeBatcher(Game game)
         {
             this.game = game ?? throw new ArgumentNullException("game");
             isDisposed = false;
@@ -63,7 +63,7 @@ namespace Plasmid.Graphics
             isDisposed = true;
         }
 
-        public void Begin(Camera camera)
+        public void Begin(Camera camera=null)
         {
             if (isStarted)
                 throw new Exception("batch already started");
@@ -180,7 +180,7 @@ namespace Plasmid.Graphics
 
             CheckSpace(shapeVertexCount, shapeIndexCount);
 
-            thickness = GraphUtils.Clamp(thickness, Shapes.MinLineThickness, Shapes.MaxLineThickness);
+            thickness = GraphUtils.Clamp(thickness, ShapeBatcher.MinLineThickness, ShapeBatcher.MaxLineThickness);
             thickness++;
 
             if (this.camera != null)
@@ -268,15 +268,15 @@ namespace Plasmid.Graphics
 
             float ax = radius;
             float ay = 0f;
-            float bx = 0f;
-            float by = 0f;
+            float bx;
+            float by;
 
             for (int i = 0; i < points; i++)
             {
                 bx = cos * ax - sin * ay;
                 by = sin * ax + cos * ay;
 
-                this.DrawLine(ax, ay, bx, by, thickness, color);
+                this.DrawLine(ax + x, ay + y, bx + x, by + y, thickness, color);
 
                 ax = bx;
                 ay = by;
@@ -299,14 +299,14 @@ namespace Plasmid.Graphics
 
             for (int i = 0; i < shapeTriangleCount; i++)
             {
-                this.indices[this.indexCount++] = 0 + this.vertexCount;
+                this.indices[this.indexCount++] = this.vertexCount;
                 this.indices[this.indexCount++] = i + 1 + this.vertexCount;
                 this.indices[this.indexCount++] = i + 2 + this.vertexCount;
             }
 
             points = GraphUtils.Clamp(points, minPoints, maxPoints);
 
-            float rotation = MathHelper.TwoPi / (float)points;
+            float rotation = MathHelper.TwoPi / (float)shapeVertexCount;
 
             float sin = MathF.Sin(rotation);
             float cos = MathF.Cos(rotation);
@@ -316,28 +316,28 @@ namespace Plasmid.Graphics
 
             for (int i = 0; i < shapeVertexCount; i++)
             {
-                float x1 = ax;
-                float y1 = ay;
+                this.vertices[this.vertexCount++] = new VertexPositionColor(new Vector3(ax + x, ay + y, 0f), color);
 
-                this.vertices[this.vertexCount++] = new VertexPositionColor(new Vector3(x1, y1, 0f), color);
+                float bx = cos * ax - sin * ay;
+                float by = sin * ax + cos * ay;
 
-                ax = cos * x1 - sin * y1;
-                ay = sin * x1 + cos * y1;
+                ax = bx;
+                ay = by;
             }
 
             this.shapeCount++;
 
         }
 
-        public void DrawPolygon(Vector2[] vertices, Transform transform, float thickness, Color color)
+        public void DrawPolygon(Vector2[] polyVertices, Transform transform, float thickness, Color color)
         {
-            if (vertices is null)
+            if (polyVertices is null)
                 return;
 
-            for (int i = 0; i < vertices.Length; i++)
+            for (int i = 0; i < polyVertices.Length; i++)
             {
-                Vector2 a = vertices[i];
-                Vector2 b = vertices[(i + 1) % vertices.Length];
+                Vector2 a = polyVertices[i];
+                Vector2 b = polyVertices[(i + 1) % polyVertices.Length];
 
                 a = GraphUtils.ApplyTransform(a, transform);
                 b = GraphUtils.ApplyTransform(b, transform);
@@ -346,9 +346,9 @@ namespace Plasmid.Graphics
             }
         }
 
-        public void DrawPolygonFill(Vector2[] vertices, int[] triangleIndices, Transform transform, Color color)
+        public void DrawPolygonFill(Vector2[] polyVertices, int[] triangleIndices, Transform transform, Color color)
         {
-            if (vertices is null || indices is null)
+            if (polyVertices is null || indices is null)
                 return;
 
             //if (vertices is null)
@@ -356,20 +356,20 @@ namespace Plasmid.Graphics
             //if (indices is null)
             //    throw new ArgumentNullException("indices");
 
-            if (vertices.Length < 3)
+            if (polyVertices.Length < 3)
                 throw new ArgumentOutOfRangeException("vertices");
             if (indices.Length < 3)
                 throw new ArgumentOutOfRangeException("indices");
 
             this.CheckStarted();
-            this.CheckSpace(vertices.Length, triangleIndices.Length);
+            this.CheckSpace(polyVertices.Length, triangleIndices.Length);
 
             for (int i = 0; i < triangleIndices.Length; i++)
                 this.indices[this.indexCount++] = triangleIndices[i] + this.vertexCount;
 
-            for (int i = 0; i < vertices.Length; i++)
+            for (int i = 0; i < polyVertices.Length; i++)
             {
-                Vector2 vertex = vertices[i];
+                Vector2 vertex = polyVertices[i];
                 vertex = GraphUtils.ApplyTransform(vertex, transform);
                 this.vertices[this.vertexCount++] = new VertexPositionColor(new Vector3(vertex.X, vertex.Y, 0f), color);
             }
@@ -377,5 +377,29 @@ namespace Plasmid.Graphics
             this.shapeCount++;
         }
 
+        public void DrawPolyTriangles(Vector2[] vertices, int[] triangles, Transform transform, Color color)
+        {
+            for (int i = 0; i < triangles.Length; i++)
+            {
+                int a = triangles[i];
+                int b = GraphUtils.GetItem(triangles, i+1);
+                int c = GraphUtils.GetItem(triangles, i+2);
+
+                Vector2 va = vertices[a];
+                Vector2 vb = vertices[b];
+                Vector2 vc = vertices[c];
+
+                va = GraphUtils.ApplyTransform(va, transform);
+                vb = GraphUtils.ApplyTransform(vb, transform);
+                vc = GraphUtils.ApplyTransform(vc, transform);
+
+                this.DrawLine(va, vb, 1f, color);
+                this.DrawLine(vb, vc, 1f, color);
+                this.DrawLine(vc, va, 1f, color);
+
+            }
+        }
+
     }
+
 }

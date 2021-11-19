@@ -63,7 +63,7 @@ namespace Plasmid.Graphics
             this.isSet = false;
         }
 
-        public void Present(Sprites sprites, bool textureFiltering = true)
+        public void Present(SpriteBatcher sprites, bool textureFiltering = true)
         {
             if (sprites is null)
                 throw new ArgumentNullException("sprites");

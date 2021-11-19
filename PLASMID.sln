@@ -13,7 +13,6 @@ Global
 	GlobalSection(SharedMSBuildProjectFiles) = preSolution
 		Plasmid_Core\Plasmid_Core.projitems*{64463b80-65b5-4b30-a51b-105236077338}*SharedItemsImports = 5
 		Plasmid_Core\Plasmid_Core.projitems*{99f0bcc4-54f1-4958-bd22-ae386ece7ce6}*SharedItemsImports = 4
-		Draw2D\Draw2D.projitems*{a0cdbd0e-3a41-42b7-9425-a838bc2c7383}*SharedItemsImports = 13
 		Plasmid_Core\Plasmid_Core.projitems*{a0cdbd0e-3a41-42b7-9425-a838bc2c7383}*SharedItemsImports = 13
 	EndGlobalSection
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution

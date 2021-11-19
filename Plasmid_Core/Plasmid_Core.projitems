@@ -6,23 +6,28 @@
     <SharedGUID>6efba8a9-a407-4029-bdd0-651d22a87386</SharedGUID>
   </PropertyGroup>
   <PropertyGroup Label="Configuration">
-    <Import_RootNamespace>Plasmid_Core</Import_RootNamespace>
+    <Import_RootNamespace>Plasmid</Import_RootNamespace>
   </PropertyGroup>
   <ItemGroup>
+    <Compile Include="$(MSBuildThisFileDirectory)Cards\BaseCard.cs" />
+    <Compile Include="$(MSBuildThisFileDirectory)Cards\CardContainer.cs" />
+    <Compile Include="$(MSBuildThisFileDirectory)Graphics\Animation.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)Cards\FloatCard.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)GeneSequence.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)Graphics\Camera.cs" />
+    <Compile Include="$(MSBuildThisFileDirectory)Graphics\Circle.cs" />
+    <Compile Include="..\Plasmid_Core\Graphics\IDrawable.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)Graphics\Screen.cs" />
-    <Compile Include="$(MSBuildThisFileDirectory)Graphics\Shapes.cs" />
-    <Compile Include="$(MSBuildThisFileDirectory)Graphics\Sprites.cs" />
-    <Compile Include="..\Plasmid_Core\Graphics\Touchscreen.cs" />
+    <Compile Include="..\Plasmid_Core\Graphics\ShapeBatcher.cs" />
+    <Compile Include="..\Plasmid_Core\Graphics\SpriteBatcher.cs" />
+    <Compile Include="$(MSBuildThisFileDirectory)Input\ITouchable.cs" />
+    <Compile Include="..\Plasmid_Core\Input\TouchInput.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)Graphics\Transform.cs" />
     <Compile Include="..\Plasmid_Core\Graphics\GraphUtils.cs" />
     <Compile Include="..\Plasmid_Core\Utils.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)Cards\CardDeck.cs" />
     <Compile Include="..\Plasmid_Core\Battle.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)Cards\CardHand.cs" />
-    <Compile Include="$(MSBuildThisFileDirectory)ExtendedGraphicsDeviceManager.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)Cards\Card.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)Game1.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)Microbe.cs" />

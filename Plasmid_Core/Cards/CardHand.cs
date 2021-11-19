@@ -6,76 +6,53 @@ using System.Text;
 
 namespace Plasmid.Cards
 {
-    class CardHand : List<Card>, IDrawable
+    public class CardHand : CardContainer //, IDrawable
     {
-        public Rectangle Area { get; set; }
-        //public ExtendedGraphicsDeviceManager Graphics { get; set; }
-        //public SpriteBatch SB { get; set; }
-        public int DrawOrder { get; set; }
-        public bool Visible { get; set; }
-        public event EventHandler<EventArgs> DrawOrderChanged;
-        public event EventHandler<EventArgs> VisibleChanged;
+        public static readonly int DefaultLimit = 7;
+        public static readonly int Width = 230;
+        public static readonly int Height = 100;
 
-        public CardHand(Rectangle area)
-        {
-            Area = area;
-            //Graphics = graphics;
-            //SB = sb;
-            DrawOrder = 10;
-            Visible = true;
-        }
+        new public Rectangle Area { get => new Rectangle(this.X, this.Y, CardHand.Width, CardHand.Height); }
+
+        public CardHand(Vector2 position) : base(position, CardState.FaceUp, CardHand.DefaultLimit) { }
 
         public void Align()
         {
             // empty hand, do nothing
-            if (Count < 1)
+            if (this.cards.Count < 1)
                 return;
             // calculate overlap
             int overlap = 0;
-            if (Count > 1)
-                overlap = (Count * Card.Width - Area.Width) / (Count - 1);
+            if (this.cards.Count > 1)
+                overlap = (this.cards.Count * BaseCard.Width - this.Area.Width) / (this.cards.Count - 1);
             if (overlap < 5)
                 overlap = 5;
             // calculate width of hand
-            int totalWidth = Card.Width + (Count - 1) * (Card.Width - overlap);
+            int totalWidth = BaseCard.Width + (this.cards.Count - 1) * (BaseCard.Width - overlap);
             // center hand and set start coordinates
-            int y = Area.Y + (Area.Height - Card.Height) / 2;
-            int x = Area.X + (Area.Width - totalWidth) / 2;
+            int y = this.Area.Y + (this.Area.Height - BaseCard.Height) / 2;
+            int x = this.Area.X + (this.Area.Width - totalWidth) / 2;
 
-            /*
-            // set base overlap (cards will slightly overlap even with excess space)
-            int overlap = 5;
-            // figure out uncompressed width of hand
-            int totalWidth = Card.Width + (Count - 1) * (Card.Width - overlap);
-            // center hand vertically
-            int y = Area.Y + (Area.Height - Card.Height) / 2;
-            int x;
-            // if hand fits uncompressed, center them horizontally
-            if (totalWidth > Area.Width)
-                x = Area.X + (Area.Width - totalWidth) / 2;
-            // otherwise compress hand (increase overlap) and then center horizontally
-            else
-                overlap = (Count * Card.Width - Area.Width) / (Count - 1);
-                int x = Area.X + PadSides;
-            int spacing = (Area.Width - Card.Width - PadSides) / Count;
-            if (spacing > Card.Width + MaxSpaceBetween)
-                spacing = Card.Width + 5;
-            */
-
-            foreach (Card c in this)
+            foreach (Card card in this.cards)
             {
-                c.Pos = new Vector2(x, y);
-                x += Card.Width - overlap;
-                // x += spacing;
+                card.SetPosition(new Vector2(x, y));
+                x += BaseCard.Width - overlap;
             }
         }
-        public void Draw(GameTime gameTime)
+
+        public override void Draw()
         {
+            BaseCard.CheckInitialized();
 
-            //SB.Begin(SpriteSortMode.Immediate, null, SamplerState.PointClamp, null, null, null, Graphics.Transform);
+            if (this.cards is null || this.cards.Count < 1)
+                return;
 
-            //SB.Draw(card.Texture, card.Pos, Color.White);
+            // TODO: reduce Align() calls
+            // maybe only re-align when cards are added/removed
+            this.Align();
 
+            foreach (Card card in this.cards)
+                card.Draw();
         }
     }
 }
