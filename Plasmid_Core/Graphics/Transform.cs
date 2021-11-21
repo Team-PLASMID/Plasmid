@@ -12,6 +12,8 @@ namespace Plasmid.Graphics
         public float CosScaleY;
         public float SinScaleY;
 
+        public static Transform Identity { get => new Transform(Vector2.Zero, 0f, 1f); }
+
         public Transform(Vector2 translation, float rotation, Vector2 scale)
         {
             this.PosX = translation.X;
@@ -50,6 +52,19 @@ namespace Plasmid.Graphics
             result.M41 = this.PosX;
             result.M42 = this.PosY;
             return result;
+        }
+
+        public override bool Equals(object other)
+        {
+            if (other is Transform trans)
+                return this.PosX == trans.PosX &&
+                    this.PosY == trans.PosY &&
+                    this.CosScaleX == trans.CosScaleX &&
+                    this.SinScaleX == trans.SinScaleX &&
+                    this.CosScaleY == trans.CosScaleY &&
+                    this.SinScaleY== trans.SinScaleY;
+            else
+                return false;
         }
     }
 }

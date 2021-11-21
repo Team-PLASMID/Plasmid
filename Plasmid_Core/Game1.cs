@@ -6,6 +6,7 @@ using Microsoft.Xna.Framework.Input.Touch;
 using System;
 using System.Collections.Generic;
 using System.Diagnostics;
+using Plasmid.Microbes;
 using Plasmid.Graphics;
 using Plasmid.Cards;
 using Plasmid.Input;

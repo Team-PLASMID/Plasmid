@@ -382,8 +382,8 @@ namespace Plasmid.Graphics
             for (int i = 0; i < triangles.Length; i++)
             {
                 int a = triangles[i];
-                int b = GraphUtils.GetItem(triangles, i+1);
-                int c = GraphUtils.GetItem(triangles, i+2);
+                int b = Utils.GetItem(triangles, i+1);
+                int c = Utils.GetItem(triangles, i+2);
 
                 Vector2 va = vertices[a];
                 Vector2 vb = vertices[b];

@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.Diagnostics;
 using System.Text;
 using Plasmid.Cards;
+using Plasmid.Microbes;
 
 namespace Plasmid
 {

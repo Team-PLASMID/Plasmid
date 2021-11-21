@@ -5,14 +5,14 @@ using System.Text;
 
 namespace Plasmid.Graphics
 {
-    public readonly struct Circle : IDrawable
+    public struct Circle : IDrawable
     {
-        public readonly Vector2 Center;
-        public readonly float Radius;
-        public readonly bool Fill;
-        public readonly float Thickness;
-        public readonly Color Color;
-        public readonly int NumVertices;
+        public Vector2 Center { get; set; }
+        public float Radius { get; set; }
+        public bool Fill { get; set; }
+        public float Thickness { get; set; }
+        public Color Color { get; set; }
+        public int NumVertices { get; set; }
 
         public Circle(float x, float y, float radius, bool fill, float thickness, Color color) : this(new Vector2(x, y), radius, fill, thickness, color) { }
 

@@ -4,7 +4,15 @@ using System.Text;
 
 namespace Plasmid.Graphics
 {
-    public enum AnimationType { SPRITE_SINGLE, SPRITE_MULTI, SHAPE_SINGLE, SHAPE_MULTI }
+    public enum AnimationType
+    {
+        SPRITE_SINGLE,
+        SPRITE_MULTI,
+        SHAPE_SINGLE,
+        SHAPE_MULTI,
+        SHAPE_MULTI_REPEAT
+    }
+
     public class Animation : IDisposable
     {
         private static Game1 game;

@@ -13,9 +13,13 @@
     <Compile Include="$(MSBuildThisFileDirectory)Cards\CardContainer.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)Graphics\Animation.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)Cards\FloatCard.cs" />
-    <Compile Include="$(MSBuildThisFileDirectory)GeneSequence.cs" />
+    <Compile Include="$(MSBuildThisFileDirectory)Microbes\DnaRandom.cs" />
+    <Compile Include="$(MSBuildThisFileDirectory)Microbes\DnaSequence.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)Graphics\Camera.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)Graphics\Circle.cs" />
+    <Compile Include="$(MSBuildThisFileDirectory)Graphics\Polygon.cs" />
+    <Compile Include="$(MSBuildThisFileDirectory)Microbes\MicrobeAnimation.cs" />
+    <Compile Include="$(MSBuildThisFileDirectory)Microbes\MicrobeVisual.cs" />
     <Compile Include="..\Plasmid_Core\Graphics\IDrawable.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)Graphics\Screen.cs" />
     <Compile Include="..\Plasmid_Core\Graphics\ShapeBatcher.cs" />
@@ -30,7 +34,7 @@
     <Compile Include="$(MSBuildThisFileDirectory)Cards\CardHand.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)Cards\Card.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)Game1.cs" />
-    <Compile Include="$(MSBuildThisFileDirectory)Microbe.cs" />
+    <Compile Include="$(MSBuildThisFileDirectory)Microbes\Microbe.cs" />
   </ItemGroup>
   <ItemGroup>
     <MonoGameContentReference Include="$(MSBuildThisFileDirectory)Content\Content.mgcb" />

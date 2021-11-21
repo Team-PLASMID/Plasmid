@@ -133,13 +133,13 @@ namespace Plasmid.Cards
             // Draw shadow and card
             if (this.state == CardState.FaceDown)
             {
-                BaseCard.Game.Sprites.Draw(BaseCard.CardBlankTexture, Vector2.Zero, new Vector2(this.position.X - 5, this.position.Y + 10), new Color(Color.Black, 50));
-                BaseCard.DrawCardBack(this.position);
+                BaseCard.Game.Sprites.Draw(BaseCard.CardBlankTexture, Vector2.Zero, this.position, new Color(Color.Black, 50));
+                BaseCard.DrawCardBack(new Vector2(this.position.X + 5, this.position.Y - 10));
             }
             else if (this.state == CardState.FaceUp)
             {
-                BaseCard.Game.Sprites.Draw(BaseCard.CardBlankTexture, Vector2.Zero, new Vector2(this.position.X - 5, this.position.Y + 10), new Color(Color.Black, 50));
-                this.card.Draw(this.position);
+                BaseCard.Game.Sprites.Draw(BaseCard.CardBlankTexture, Vector2.Zero, this.position, new Color(Color.Black, 50));
+                this.card.Draw(new Vector2(this.position.X + 5, this.position.Y - 10));
             }
         }
     }
