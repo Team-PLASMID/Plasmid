@@ -53,15 +53,17 @@ namespace Plasmid.Graphics
         public static Vector2 ApplyTransform(Vector2 position, Transform transform)
         {
             return new Vector2(
-                position.X * transform.CosScaleX - position.Y * transform.SinScaleY + transform.PosX,
-                position.X * transform.SinScaleX + position.Y * transform.CosScaleY + transform.PosY );
+                position.X * transform.CosScaleX - position.Y * transform.SinScaleY + transform.TranslationX,
+                position.X * transform.SinScaleX + position.Y * transform.CosScaleY + transform.TranslationY );
         }
 
         
 
 
-        public static Color GetRandomColor(Random rand)
+        public static Color GetRandomColor(Random rand = null)
         {
+            if (rand is null)
+                rand = new Random();
             return new Color(rand.Next(256), rand.Next(256), rand.Next(256));
         }
 

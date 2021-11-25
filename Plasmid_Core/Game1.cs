@@ -1,8 +1,6 @@
 ﻿
 using Microsoft.Xna.Framework;
 using Microsoft.Xna.Framework.Graphics;
-using Microsoft.Xna.Framework.Input;
-using Microsoft.Xna.Framework.Input.Touch;
 using System;
 using System.Collections.Generic;
 using System.Diagnostics;
@@ -10,12 +8,14 @@ using Plasmid.Microbes;
 using Plasmid.Graphics;
 using Plasmid.Cards;
 using Plasmid.Input;
+using Plasmid.UI;
+using static Plasmid.UI.Button;
 
 namespace Plasmid
 {
+    public enum GameState { Start, Battle, Init };
     public class Game1 : Game
     {
-        private Random rand = new Random();
 
         private GraphicsDeviceManager graphics;
 
@@ -28,37 +28,25 @@ namespace Plasmid
         public CardDeck Discard { get; set; }
         public CardHand Hand { get; set; }
         public FloatCard Float { get; set; }
-        public List<Animation> Animations { get; set; }
-        
+
+        public GameState State { get; set; }
+
+        private Splash startSplash;
 
         private Texture2D BackgroundTexture;
         private Color BackgroundColor;
         private Texture2D HpPanelLeftTexture;
         private Texture2D HpPanelRightTexture;
         private Texture2D HpBarTexture;
-        private Texture2D BlankRectangle;
 
         private SpriteFont BattleFont;
 
-        // Battle layout positions
-        //private Rectangle PlayArea = new Rectangle(0, 64, 270, 224);
-        //private Rectangle HandArea = new Rectangle(20, 304, 230, 112);
-        //private Rectangle DeckArea = new Rectangle(31, 432, Card.Width, Card.Height);
-        //private Rectangle DiscardArea = new Rectangle(175, 432, Card.Width, Card.Height);
-        //private Rectangle MessageArea = new Rectangle(15, 16, 240, 32);
-        //private Vector2 HpPanelLeftPos = new Vector2(0, 257);
-        //private Vector2 HpPanelRightPos = new Vector2(125, 68);
-        //private Vector2 HpBarLeftPos = new Vector2(4, 261);
-        //private Vector2 HpBarRightPos = new Vector2(131, 72);
-
-        //private Vector2 PlayerSpritePos = new Vector2(142, 157);
-        //private Vector2 EnemySpritePos = new Vector2(5, 70);
-
-        private Rectangle PlayArea = new Rectangle(0, 193, 270, 224);
-        private Rectangle HandArea = new Rectangle(20, 70, 230, 100);
-        //private Rectangle DeckArea = new Rectangle(31, -48, Card.Width, Card.Height);
-        //private Rectangle DiscardArea = new Rectangle(175, -48, Card.Width, Card.Height);
-        //private Rectangle MessageArea = new Rectangle(15, 480 - 16, 240, 32);
+        private Texture2D title;
+        private Texture2D dnaStrand;
+        private int dnaStrandShift;
+        private double dnaStrandStartTime = -1;
+        private Texture2D titleBG;
+        private Texture2D titleBGshield;
 
         private Vector2 HpPanelLeftPos = new Vector2(0, 195);
         private Vector2 HpPanelRightPos = new Vector2(125, 386);
@@ -71,13 +59,11 @@ namespace Plasmid
         private Microbe microbeA;
         private Microbe microbeB;
 
-        private Vector2[] polyVertices;
-        private int[] polyTriangles;
-        private Vector2 clickPosition;
-        private double clickTime = 0;
+        private Panel startPanel;
+
+        private ColorCycler rainbow;
 
         Battle BattleDemo;
-        private Texture2D Logo;
         public Game1()
         {
             graphics = new GraphicsDeviceManager(this);
@@ -92,41 +78,38 @@ namespace Plasmid
             graphics.IsFullScreen = true;
             graphics.ApplyChanges();
 
+            this.State = GameState.Init;
+
             this.Screen = new Screen(this, 270, 480);
             this.Camera = new Camera(this.Screen);
 
             this.Touch = new TouchInput();
             this.Touch.Init(this);
+            Widget.Init(this);
+            Animation.Init(this);
+            BaseCard.Init(this);
+
             this.Sprites = new SpriteBatcher(this);
             this.Shapes = new ShapeBatcher(this);
 
-            Animation.Init(this);
-            this.Animations = new List<Animation>();
-
-            BaseCard.Init(this);
+            ///////////////////////////////////////////////////////////////////
 
             Hand = new CardHand(new Vector2(20, 70));
             Deck = new CardDeck(new Vector2(31, -48));
             Discard = new CardDeck(new Vector2(175, -48), state: CardState.FaceUp, isDrawAllowed: false, isSearchAllowed: true);
             Float = new FloatCard();
 
-            //microbeA = new Microbe();
-            polyVertices = new Vector2[] {
-                new Vector2(4,-1), new Vector2(7, -2), new Vector2(3, -10), new Vector2(1, -5),
-                new Vector2(-1, -5), new Vector2(-3, -10), new Vector2(-7, -2), new Vector2(-4,-1),
-                new Vector2(-4,1), new Vector2(-7, 2), new Vector2(-3, 10), new Vector2(-1, 5),
-                new Vector2(1, 5), new Vector2(3, 10), new Vector2(7, 2), new Vector2(4, 1)
-            };
-            //microbeA.Vertices = GraphUtils.RemoveColinear(microbeA.Vertices);
-            GraphUtils.Triangulate(polyVertices, out polyTriangles, out string errorMessage);
+            microbeA = new Microbe(new Vector2(207, 480 - 223));
+            microbeB = new Microbe(new Vector2(63, 480 - 127));
 
-            //microbeB = new Microbe();
-            //
-            //microbeA.Vertices = GraphUtils.RemoveColinear(microbeA.Vertices);
-            //GraphUtils.Triangulate(microbeA.Vertices, out triangles, out errorMessage);
-            //microbeB.Triangles = triangles;
-
-            //microbeA.TestGen(GraphicsDevice);
+            List<Color> colorList = new List<Color>() {
+                new Color(179, 0, 0),
+                new Color(197, 140, 0),
+                new Color(203, 201, 14),
+                new Color(132, 187, 0),
+                new Color(124, 171, 204),
+                new Color(145, 58, 161) };
+            rainbow = new ColorCycler(colorList, 100);
 
             BattleDemo = new Battle(microbeA, microbeB);
 
@@ -149,13 +132,11 @@ namespace Plasmid
 
         protected override void LoadContent()
         {
-            //ShapeBatch sb = new ShapeBatch(GraphicsDevice, Content);
-            //microbeA.GenerateDNA();
-            //microbeA.GenSprite(GraphicsDevice);
-            //microbeB.GenerateDNA();
-            //microbeB.GenSprite(GraphicsDevice);
             BaseCard.Load();
             Card.Load(GraphicsDevice);
+
+            ///////////////////////////////////////////////////////////////////
+
 
             BackgroundTexture = Content.Load<Texture2D>("battle_console");
             BackgroundColor = Color.LightCyan;
@@ -164,12 +145,8 @@ namespace Plasmid
             HpPanelRightTexture = Content.Load<Texture2D>("hp_panel_r");
             HpBarTexture = Content.Load<Texture2D>("hp_bar");
 
-            BlankRectangle = new Texture2D(GraphicsDevice, 1, 1);
-            BlankRectangle.SetData(new[] { Color.White });
-
             BattleFont = Content.Load<SpriteFont>("BattleFont");
-
-            Logo = Content.Load<Texture2D>("logo");
+            Label.DefaultFont = BaseCard.Font;
 
             // Demo Deck
 
@@ -184,127 +161,183 @@ namespace Plasmid
             Deck.Add(Card.Copy("Phagocytosis"));
 
             // Shuffle Demo Deck
-            // ( This should be made into a proper Shuffle function )
             this.Deck.Shuffle();
 
         }
 
         protected override void Update(GameTime gameTime)
         {
-            this.Touch.HandleTouch(gameTime.TotalGameTime.TotalMilliseconds);
-
-            for (int i = 0; i < this.Animations.Count; i++)
+            if (this.State == GameState.Init)
             {
-                this.Animations[i].Update(gameTime.TotalGameTime.TotalMilliseconds);
-                if (this.Animations[i].IsDisposed)
-                    this.Animations.RemoveAt(i);
+                this.startSplash = StartScreen();
+                this.State = GameState.Start;
+                return;
             }
+
+            double gt = gameTime.TotalGameTime.TotalMilliseconds;
+
+            //if (gt > 5000)
+            //    this.State = GameState.Battle;
+
+            if (this.State == GameState.Start)
+            {
+                //if (dnaStrandStartTime == -1)
+                //    dnaStrandStartTime = gt;
+
+                //if (gt - dnaStrandStartTime > 50)
+                //{
+                //    dnaStrandShift -= 1;
+                //    if (dnaStrandShift < -(8*41))
+                //        dnaStrandShift = 0;
+                //    dnaStrandStartTime = gt;
+                //}
+            }
+
+            this.Touch.HandleTouch(gt);
+
+            Animation.UpdateAll(gt);
 
             base.Update(gameTime);
         }
 
         protected override void Draw(GameTime gameTime)
         {
+            int width = graphics.GraphicsDevice.Viewport.Width;
+            int height = graphics.GraphicsDevice.Viewport.Height;
+
             this.Screen.Set();
             GraphicsDevice.Clear(Color.Black);
 
-            // TODO: implement Transforms for shapes other than polys
-            Transform defaultTrans = new Transform(Vector2.Zero, 0f, 1f);
-            //Transform playerMicrobeTrans = new Transform(new Vector2(142,193), 0f, 5f);
-            Transform playerMicrobeTrans = new Transform(new Vector2(200,300), 0f, 8f);
-            Transform enemyMicrobeTrans = new Transform(new Vector2(0,288), 0f, 1f);
-
-
-            Sprites.Begin(null);
-
-            // Draw Background
-            Sprites.Draw(BackgroundTexture, Vector2.Zero, Vector2.Zero, BackgroundColor);
-
-            // Draw Title 
-            // _spriteBatch.DrawString(BattleFont, "PLASMID", new Vector2(MessageArea.X + 5, MessageArea.Y + 8), Color.Black);
-
-            // Draw Microbes
-
-            Shapes.Begin(null);
-
-            //shapes.DrawPolyTriangles(microbeA.Vertices, trianglesA, defaultTrans, Color.Red);
-            Shapes.DrawPolygonFill(polyVertices, polyTriangles, playerMicrobeTrans, Color.LightGreen);
-            //shapes.DrawPolyTriangles(polyVertices, polyTriangles, playerMicrobeTrans, Color.DarkGreen);
-            Shapes.DrawPolygon(polyVertices, playerMicrobeTrans, 3, Color.DarkGreen);
-
-            //shapes.DrawPolygonFill(microbeB.Vertices, microbeB.Triangles, enemyMicrobeTrans, Color.Pink);
-            //shapes.DrawPolyTriangles(microbeB.Vertices, microbeB.Triangles, enemyMicrobeTrans, Color.Red);
-            //shapes.DrawPolygon(microbeB.Vertices, enemyMicrobeTrans, 3, Color.Red);
-
-            Shapes.End();
-            //_spriteBatch.Draw(microbeA.Sprite, PlayerSpritePos, Color.White);
-            //_spriteBatch.Draw(microbeB.Sprite, EnemySpritePos, Color.White);
-
-            // Draw HP Bars
-            Sprites.Draw(HpPanelLeftTexture, Vector2.Zero, HpPanelLeftPos, BackgroundColor);
-            Sprites.Draw(HpPanelRightTexture, Vector2.Zero, HpPanelRightPos, BackgroundColor);
-            Sprites.End();
-
-            //float playerbar = 120f * (BattleDemo.PlayerMicrobe.HP / BattleDemo.PlayerMicrobe.MaxHP);
-            //float opponentbar = 120f * (BattleDemo.OpponentMicrobe.HP / BattleDemo.OpponentMicrobe.MaxHP);
-
-            Shapes.Begin(null);
-            //shapes.DrawRectangleFill(HpBarLeftPos.X + 1, HpBarLeftPos.Y + 3, playerbar, 13, Color.LimeGreen);
-            //shapes.DrawRectangleFill(HpBarRightPos.X + 1, HpBarRightPos.Y + 3, opponentbar, 13, Color.LimeGreen);
-            Shapes.End();
-
-            Sprites.Begin(null);
-
-            Sprites.Draw(HpBarTexture, Vector2.Zero, HpBarLeftPos, Color.White);
-            Sprites.Draw(HpBarTexture, Vector2.Zero, HpBarRightPos, Color.White);
-
-            // Draw logo
-            //_spriteBatch.Draw(Logo, new Vector2(PlayArea.X + (PlayArea.Width - Logo.Width)/2, PlayArea.Y + (PlayArea.Height - Logo.Height)/2), Color.White);
-
-            // Draw deck
-            this.Deck.Draw();
-            //if (Deck.Count > 0)
-            //    Sprites.Draw(Card.CardBackTexture, null, this.Deck.Area, Card.CardBackColor);
-
-            // Draw discard
-            this.Discard.Draw();
-            //if (Discard.Count > 0)
-            //    Sprites.Draw(Discard[Discard.Count-1].Texture, null, this.Discard.Area, Color.White);
-
-            // Draw hand cards
-            this.Hand.Draw();
-            //if (Hand.Count > 0)
-            //    foreach (Card card in Hand)
-            //    {
-            //        if (card.Texture == null)
-            //            continue;
-            //        Sprites.Draw(card.Texture, Vector2.Zero, card.Position, Color.White);
-            //    }
-
-            // Draw floating card w/ shadow
-            this.Float.Draw();
-            
-            Sprites.End();
-
-            //// Debugging: Area overlays
-            //shapes.Begin(null);
-            //shapes.DrawRectangleFill(this.PlayArea, new Color(Color.Pink, 50));
-            //shapes.DrawRectangleFill(this.HandArea, new Color(Color.Blue, 50));
-            //shapes.DrawRectangleFill(this.DeckArea, new Color(Color.Green, 50));
-            //shapes.DrawRectangleFill(this.DiscardArea, new Color(Color.Red, 50));
-            //shapes.End();
-
-            Shapes.Begin();
-            foreach (var item in this.Animations)
+            // BATTLE
+            if (this.State == GameState.Battle)
             {
-                item.Draw();
-            }
-            Shapes.End();
+                // TODO: implement Transforms for shapes other than polys
+                Transform defaultTrans = new Transform(Vector2.Zero, 0f, 1f);
+                //Transform playerMicrobeTrans = new Transform(new Vector2(142,193), 0f, 5f);
+                Transform playerMicrobeTrans = new Transform(new Vector2(200, 300), 0f, 8f);
+                Transform enemyMicrobeTrans = new Transform(new Vector2(0, 288), 0f, 1f);
 
+                Sprites.Begin(null);
+
+                // Draw Background
+                Sprites.Draw(BackgroundTexture, Vector2.Zero, Vector2.Zero, BackgroundColor);
+
+                // Draw Microbes
+                Shapes.Begin(null);
+                microbeA.Draw();
+                microbeB.Draw();
+                Shapes.End();
+
+                // Draw HP Bars
+                Sprites.Draw(HpPanelLeftTexture, Vector2.Zero, HpPanelLeftPos, BackgroundColor);
+                Sprites.Draw(HpPanelRightTexture, Vector2.Zero, HpPanelRightPos, BackgroundColor);
+                Sprites.End();
+
+                float playerbar = 120f * (BattleDemo.PlayerMicrobe.HP / BattleDemo.PlayerMicrobe.MaxHP);
+                float opponentbar = 120f * (BattleDemo.OpponentMicrobe.HP / BattleDemo.OpponentMicrobe.MaxHP);
+
+                Shapes.Begin(null);
+                Shapes.DrawRectangleFill(HpBarLeftPos.X + 1, HpBarLeftPos.Y + 3, playerbar, 13, Color.LimeGreen);
+                Shapes.DrawRectangleFill(HpBarRightPos.X + 1, HpBarRightPos.Y + 3, opponentbar, 13, Color.LimeGreen);
+                Shapes.End();
+
+                Sprites.Begin(null);
+
+                Sprites.Draw(HpBarTexture, Vector2.Zero, HpBarLeftPos, Color.White);
+                Sprites.Draw(HpBarTexture, Vector2.Zero, HpBarRightPos, Color.White);
+
+                // Draw deck
+                this.Deck.Draw();
+
+                // Draw discard
+                this.Discard.Draw();
+
+                // Draw hand cards
+                this.Hand.Draw();
+
+                // Draw float card
+                this.Float.Draw();
+
+                Sprites.End();
+
+                //// Debugging: Area overlays
+                //shapes.Begin(null);
+                //shapes.DrawRectangleFill(this.PlayArea, new Color(Color.Pink, 50));
+                //shapes.DrawRectangleFill(this.HandArea, new Color(Color.Blue, 50));
+                //shapes.DrawRectangleFill(this.DeckArea, new Color(Color.Green, 50));
+                //shapes.DrawRectangleFill(this.DiscardArea, new Color(Color.Red, 50));
+                //shapes.End();
+
+                //Shapes.Begin();
+                //foreach (var item in Animation.All)
+                //{
+                //    item.Draw();
+                //}
+                //Shapes.End();
+
+            }
+
+            // START MENU
+            else if (this.State == GameState.Start)
+            {
+
+                this.Sprites.Begin();
+
+                //Color color = rainbow.Next();
+
+                //this.Sprites.Draw(titleBG, Vector2.Zero, Vector2.Zero, Color.LightGray);
+                //this.Sprites.Draw(titleBGshield, Vector2.Zero, Vector2.Zero, color);
+                //this.Sprites.Draw(dnaStrand, Vector2.Zero, new Vector2((width - dnaStrand.Width) / 2, dnaStrandShift), Color.White);
+                //this.Sprites.Draw(title, Vector2.Zero, new Vector2((width - title.Width)/2, (float)(height * 0.6)), Color.White);
+                this.startSplash.DrawBG(Sprites);
+                this.startSplash.DrawWidgets();
+
+
+                this.Sprites.End();
+
+            }
+            
             this.Screen.UnSet();
             this.Screen.Present(this.Sprites);
 
             base.Draw(gameTime);
+        }
+
+        private void StartButtonClick(object sender)
+        {
+            if(((Button)sender).Name == "start")
+            {
+                this.State = GameState.Battle;
+            }
+        }
+
+        private Splash StartScreen()
+        {
+            Splash splash = new Splash(new Rectangle(0, 0, 270, 480));
+
+            splash.AddTexture(Content, "microbe_background", Vector2.Zero, Color.White);
+            //splash.AddTexture(Content, "microbe_background_shield", Vector2.Zero, new Color(157, 190, 217));
+            //splash.AddTexture(Content, "microbe_background_shield", Vector2.Zero, new Color(71, 153, 198));
+            splash.AddTexture(Content, "dna_strand", new Vector2(0, -100), Color.White);
+            splash.AddTexture(Content, "title", new Vector2(17, 300), Color.White);
+
+            startPanel = new Panel(new Vector2(128, 64), new Color(99, 155, 255), Alignment.BottomCenter);
+            startPanel.SetPadding(0, 50, 50, 0);
+
+            Button startButton = new Button(new Vector2(96, 32), startPanel.Color.ModifyL(.9f), Alignment.Center, "Start", Color.Wheat);
+            startButton.Name = "start";
+
+            startButton.Click += new ButtonEventHandler(StartButtonClick);
+
+
+            startPanel.AddWidget(new Label("Touch to Start!", BattleFont, Color.Gold, Alignment.TopCenter));
+            startPanel.AddWidget(startButton);
+
+            splash.AddWidget(startPanel);
+            splash.AlignWidgets();
+            splash.IsVisible = true;
+
+            return splash;
         }
     }
 }

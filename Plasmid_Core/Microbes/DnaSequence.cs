@@ -17,9 +17,15 @@ namespace Plasmid.Microbes
         public int T { get => this.CountBasePairs(Dna.T); }
         public int C { get => this.CountBasePairs(Dna.C); }
 
+        public DnaSequence(Random? random=null)
+        {
+            this.Generate(random);
+        }
+
         public void Generate(Random? random=null)
         {
             Random rand = random ?? new Random();
+            this.Clear();
 
             // generate DNA sequence
             for (int i = 0; i < DnaSequence.LENGTH; i++)

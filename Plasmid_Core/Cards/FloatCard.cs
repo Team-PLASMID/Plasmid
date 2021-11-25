@@ -105,6 +105,9 @@ namespace Plasmid.Cards
 
         public void TouchRelease(Vector2 touchPosition)
         {
+            // TODO
+            // Release should go off middle of card, not touch position
+
             if (!this.isActive)
                 return;
 

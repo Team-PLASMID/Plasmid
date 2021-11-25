@@ -7,6 +7,9 @@ using Plasmid.Graphics;
 
 namespace Plasmid.Input
 {
+    public delegate void TouchPressedEventHandler(object sender, Vector2 position, double gametime);
+    public delegate void TouchMovedEventHandler(object sender, Vector2 position, double gametime);
+    public delegate void TouchReleasedEventHandler(object sender, Vector2 position, double gametime);
     public sealed class TouchInput
     {
         private static readonly Lazy<TouchInput> Lazy = new Lazy<TouchInput>(() => new TouchInput());
@@ -19,6 +22,10 @@ namespace Plasmid.Input
         private Game1 game;
 
         private bool isInitialized;
+
+        public event TouchPressedEventHandler Pressed;
+        public event TouchMovedEventHandler Moved;
+        public event TouchReleasedEventHandler Released;
 
         public TouchInput()
         {
@@ -46,7 +53,6 @@ namespace Plasmid.Input
 
             this.prevTouches = this.touches;
             this.touches = TouchPanel.GetState();
-
         }
 
         public void HandleTouch(double time)
@@ -60,6 +66,10 @@ namespace Plasmid.Input
             Vector2 position = touches[0].ScreenPosition(game.Screen);
             TouchLocationState state = touches[0].State;
 
+            // Touch to proceed from start screen
+            //if (game.State == GameState.Start && state == TouchLocationState.Pressed)
+            //    game.State = GameState.Battle;
+
 #if DEBUG
             // Track touches in debug mode
             this.SetTouchPing(position, state, time);
@@ -68,6 +78,9 @@ namespace Plasmid.Input
             // PRESSED
             if ( state == TouchLocationState.Pressed)
             {
+                if (Pressed != null)
+                    Pressed(this, position, time);
+
                 // DECK
                 if (game.Deck.Area.Contains(position))
                     game.Deck.TouchPress(position);
@@ -76,6 +89,8 @@ namespace Plasmid.Input
             // MOVED
             if (state == TouchLocationState.Moved)
             {
+                if (Moved != null)
+                    Moved(this, position, time);
                 // FLOAT
                 if (game.Float.IsActive)
                     game.Float.TouchMove(position);
@@ -84,6 +99,8 @@ namespace Plasmid.Input
             // RELEASED
             if (state == TouchLocationState.Released)
             {
+                if (Released != null)
+                    Released(this, position, time);
                 // FLOAT
                 if (game.Float.IsActive)
                     game.Float.TouchRelease(position);
@@ -92,28 +109,27 @@ namespace Plasmid.Input
 
         private void SetTouchPing(Vector2 position, TouchLocationState state, double time)
         {
-            Animation anim = new Animation(AnimationType.SHAPE_SINGLE);
+            Animation anim = Animation.New(AnimationType.SINGLE);
             anim.SetDuration(1000);
 
             if (state == TouchLocationState.Pressed)
             {
-                anim.AddDrawable(new Circle(position, 10f, true, 0f, Color.Magenta));
-                anim.AddDrawable(new Circle(position, 10f, false, 2f, Color.DarkMagenta));
-                anim.AddDrawable(new Circle(position, 3f, false, 1f, Color.DarkMagenta));
+                anim.AddShape(new Circle(position, 10f, Color.Magenta, true, 0f));
+                anim.AddShape(new Circle(position, 10f, Color.DarkMagenta, false, 2f));
+                anim.AddShape(new Circle(position, 3f, Color.DarkMagenta, false, 1f));
             }
             if (state == TouchLocationState.Moved)
             {
-                anim.AddDrawable(new Circle(position, 5f, true, 0f, Color.LimeGreen));
+                anim.AddShape(new Circle(position, 5f, Color.LimeGreen,true, 0f ));
             }
             if (state == TouchLocationState.Released)
             {
-                anim.AddDrawable(new Circle(position, 10f, true, 0f, Color.Cyan));
-                anim.AddDrawable(new Circle(position, 10f, false, 2f, Color.DarkCyan));
-                anim.AddDrawable(new Circle(position, 3f, false, 1f, Color.DarkCyan));
+                anim.AddShape(new Circle(position, 10f, Color.Cyan, true, 0f));
+                anim.AddShape(new Circle(position, 10f, Color.DarkCyan, false, 2f));
+                anim.AddShape(new Circle(position, 3f, Color.DarkCyan, false, 1f));
             }
 
-            this.game.Animations.Add(anim);
-            this.game.Animations[this.game.Animations.Count - 1].Start(time);
+            anim.Start();
         }
     }
 

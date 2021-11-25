@@ -54,15 +54,15 @@ namespace Plasmid.Cards
 
         public static Card New(Vector2 position, string name, string text, string art, int a, int g, int t, int c, List<CardEffect> effects)
         {
-            BaseCard.CheckInitialized();
+            Card.CheckLoaded();
 
-            All.Add(new Card(position, name, text, art, a, g, t, c, effects));
-            return All[All.Count - 1];
+            Card.All.Add(new Card(position, name, text, art, a, g, t, c, effects));
+            return Card.All[^1];
         }
 
         public static Card Copy(string searchName)
         {
-            Card card = All.Find(c => c.Name == searchName);
+            Card card = Card.All.Find(c => c.Name == searchName);
 
             return new Card(card.Position, card.Name, card.Text, card.Art, card.Texture, card.CostA, card.CostG, card.CostT, card.CostC, card.CardEffects);
         }

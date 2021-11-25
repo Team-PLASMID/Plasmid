@@ -39,9 +39,9 @@ namespace Plasmid
         public void Damage(Microbe microbe, int amount)
         {
             //Debug.Write(amount + " damage. " + microbe.HP + " -> ");
-            microbe.HP -= amount;
-            if (microbe.HP < 0)
-                microbe.HP = 0;
+            //microbe.hp -= amount;
+            //if (microbe.hp < 0)
+            //    microbe.hp = 0;
             //Debug.WriteLine(microbe.HP);
         }
 

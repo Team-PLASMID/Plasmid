@@ -1,4 +1,5 @@
-﻿using System;
+﻿using Microsoft.Xna.Framework;
+using System;
 using System.Collections.Generic;
 using System.Text;
 
@@ -6,41 +7,47 @@ namespace Plasmid.Graphics
 {
     public enum AnimationType
     {
-        SPRITE_SINGLE,
-        SPRITE_MULTI,
-        SHAPE_SINGLE,
-        SHAPE_MULTI,
-        SHAPE_MULTI_REPEAT
+        SINGLE,
+        REPEAT
     }
 
     public class Animation : IDisposable
     {
         private static Game1 game;
+        public static List<Animation> All = new List<Animation>();
 
-        private AnimationType type;
-        private List<IDrawable> drawables;
-        private int index;
+        private List<IShape> shapeList;
+        private Queue<Transform> transformList;
         private double duration;
         private double startTime;
 
-        public bool IsActive { get { return this.isActive; } }
+        public AnimationType Type { get => this.type; }
+        private AnimationType type;
+
+        public bool IsActive { get => this.isActive; }
         private bool isActive;
-        public bool IsDisposed { get { return this.isDisposed; } }
+        public bool IsDisposed { get => this.isDisposed; }
         private bool isDisposed;
 
 
 
-        public Animation(AnimationType type)
+        protected Animation(AnimationType type)
+        {
+            this.type = type;
+            this.shapeList = new List<IShape>();
+            this.transformList = new Queue<Transform>();
+            this.duration = 0;
+
+            this.isActive = false;
+        }
+
+        public static Animation New(AnimationType type = AnimationType.SINGLE)
         {
             if (Animation.game is null)
                 throw new Exception("Run Animation.Init(Game1 game) before creating instance.");
 
-            this.type = type;
-            this.drawables = new List<IDrawable>();
-            this.index = 0;
-            this.duration = 0;
-
-            this.isActive = false;
+            Animation.All.Add(new Animation(type));
+            return Animation.All[^1];
         }
 
         public static void Init(Game1 game)
@@ -48,9 +55,14 @@ namespace Plasmid.Graphics
             Animation.game = game;
         }
 
-        public void AddDrawable(IDrawable item)
+        public void AddShape(IShape item)
         {
-            this.drawables.Add(item);
+            this.shapeList.Add(item);
+        }
+
+        public void AddTransformation(Transform transform)
+        {
+            this.transformList.Enqueue(transform);
         }
 
         public void SetDuration(double milliseconds)
@@ -58,13 +70,19 @@ namespace Plasmid.Graphics
             this.duration = milliseconds;
         }
 
-        public void Start(double time)
+        public void Start()
         {
             if (this.isActive)
                 throw new Exception("Animation already started");
 
-            this.startTime = time;
-            this.index = 0;
+            if (this.type == AnimationType.REPEAT)
+            {
+                Random rand = new Random();
+                for (int i = 0; i < rand.Next(this.transformList.Count); i++)
+                    this.NextTransform();
+            }
+
+            this.startTime = -1;
             this.isActive = true;
         }
         public void End()
@@ -74,8 +92,14 @@ namespace Plasmid.Graphics
 
             this.isActive = false;
 
-            if (this.type == AnimationType.SPRITE_SINGLE || this.type == AnimationType.SHAPE_SINGLE)
-                this.Dispose();
+            //if (this.type == AnimationType.SPRITE_SINGLE || this.type == AnimationType.SHAPE_SINGLE)
+            //    this.Dispose();
+        }
+
+        public static void UpdateAll(double time)
+        {
+            foreach (Animation animation in Animation.All)
+                animation.Update(time);
         }
 
         public void Update(double time)
@@ -83,30 +107,52 @@ namespace Plasmid.Graphics
             if (!this.isActive)
                 return;
 
-            // SHAPE_SINGLE
-            if (this.type == AnimationType.SHAPE_SINGLE)
+            if (this.startTime < 0)
+                this.startTime = time;
+
+            // SINGLE
+            if (this.type == AnimationType.SINGLE)
             {
                 if (time - this.startTime > duration)
                     this.End();
             }
-            // SHAPE_MULTI
-            if (this.type == AnimationType.SHAPE_MULTI)
+            // REPEAT
+            if (this.type == AnimationType.REPEAT)
             {
                 if (time - this.startTime > duration)
                 {
-                    this.index++;
-                    if (index >= this.drawables.Count)
-                        this.End();
+                    this.NextTransform();
+                    this.startTime = time;
                 }
             }
         }
 
-        public void Draw()
+        private void NextTransform()
+        {
+            Transform transform = this.transformList.Dequeue();
+            foreach (IShape shape in this.shapeList)
+                shape.ApplyTransform(transform);
+            this.transformList.Enqueue(transform);
+        }
+
+        public static void DrawAll()
+        {
+            foreach (Animation animation in Animation.All)
+                animation.Draw();
+        }
+
+        public void Draw() { this.Draw(Vector2.Zero); }
+        public void Draw(Vector2 position)
         {
             if (!this.isActive)
                 return;
+            //if (!position.Equals(Vector2.Zero))
+            //    foreach (IShape shape in this.shapeList)
+            //        shape.ApplyTransform(Transform.Shift(position));
 
-            this.drawables[this.index].Draw(Animation.game);
+            foreach (IShape shape in this.shapeList)
+                shape.Draw(Animation.game, position);
+                //shape.Draw(Animation.game);
         }
 
         public void Dispose()

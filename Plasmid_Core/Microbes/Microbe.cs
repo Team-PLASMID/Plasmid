@@ -9,31 +9,41 @@ namespace Plasmid.Microbes
 {
 class Microbe
     {
-        // Sprite gen params
-        
-
         public DnaSequence Genome { get => this.genome; }
         private DnaSequence genome;
-        private int a;
-        private int g;
-        private int t;
-        private int c;
+        public int A { get => this.genome.A; }
+        public int G { get => this.genome.G; }
+        public int T { get => this.genome.T; }
+        public int C { get => this.genome.C; }
+
+        public Animation Animation;
+        private MicrobeVisual visual;
+        private Vector2 visualPosition;
+
+        public List<Card> Deck { get => this.deck; }
         private List<Card> deck;
 
-        public int MaxHP { get; set; }
-        public int HP { get; set; }
+        public int MaxHP { get => this.maxHP; }
+        private int maxHP;
+        public int HP { get => this.hp; }
+        private int hp;
 
-        public Microbe()
+        public Microbe(Vector2 visualPosition)
         {
-            deck = new List<Card>();
-            MaxHP = 20;
-            HP = MaxHP;
-            //Sprite = generateSprite();
+            this.deck = new List<Card>();
+            this.maxHP = 20;
+            this.hp = MaxHP;
+
+            this.visualPosition = visualPosition;
+
+            this.genome = new DnaSequence();
+            this.visual = new MicrobeVisual(this.genome, visualPosition);
+
         }
 
-        public void GenerateDNA()
+        public void Draw()
         {
-            this.genome.Generate();
+            this.visual.DrawIdleAnimation();
         }
 
         //public void TestGen(GraphicsDevice graphics)

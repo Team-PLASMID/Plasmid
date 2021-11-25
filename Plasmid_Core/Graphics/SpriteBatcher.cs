@@ -91,7 +91,7 @@ namespace Plasmid.Graphics
 
         public void DrawString(SpriteFont font, string text, Vector2 position, Color color)
         {
-            this.sprites.DrawString(font, text, position, color);
+            this.sprites.DrawString(font, text, position, color, 0f, Vector2.Zero, 1f, SpriteEffects.FlipVertically, 0f);
         }
     }
 }

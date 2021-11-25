@@ -18,6 +18,8 @@ namespace Plasmid.Graphics
         public int Width { get; }
         public int Height { get; }
 
+        public Rectangle Area { get => new Rectangle(0, 0, Width, Height); }
+
         public Screen(Game game, int width, int height)
         {
             this.game = game ?? throw new ArgumentNullException("game");

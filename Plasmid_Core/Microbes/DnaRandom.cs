@@ -7,22 +7,22 @@ namespace Plasmid.Microbes
     {
         private static Dictionary<string, double> conversions = new Dictionary<string, double>()
         {
-            { "AA", 0 },
-            { "AG", 1/15 },
-            { "AT", 2/15 },
-            { "AC", 3/15 },
-            { "GA", 4/15 },
-            { "GG", 5/15 },
-            { "GT", 6/15 },
-            { "GC", 7/15 },
-            { "TA", 8/15 },
-            { "TG", 9/15 },
-            { "TT", 10/15 },
-            { "TC", 11/15 },
-            { "CA", 12/15 },
-            { "CG", 13/15 },
-            { "CT", 14/15 },
-            { "CC", 1 },
+            { "AA", 0.0 },
+            { "AG", 1.0/15 },
+            { "AT", 2.0/15 },
+            { "AC", 3.0/15 },
+            { "GA", 4.0/15 },
+            { "GG", 5.0/15 },
+            { "GT", 6.0/15 },
+            { "GC", 7.0/15 },
+            { "TA", 8.0/15 },
+            { "TG", 9.0/15 },
+            { "TT", 10.0/15 },
+            { "TC", 11.0/15 },
+            { "CA", 12.0/15 },
+            { "CG", 13.0/15 },
+            { "CT", 14.0/15 },
+            { "CC", 1.0 },
         };
         private string sequence;
 
@@ -53,14 +53,11 @@ namespace Plasmid.Microbes
         public override double NextDouble()
         {
             string str = sequence.Substring(0, 2);
-            if (conversions.TryGetValue(str, out double value))
-            {
-                sequence.Remove(0, 2);
-                sequence.Insert(sequence.Length - 1, str);
-                return value;
-            }
-            else
-                throw new Exception("Couldn't generate double from dna");
+            double value = conversions[str];
+
+            this.sequence = sequence.Substring(2) + str;
+
+            return value;
         }
 
     }

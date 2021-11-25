@@ -6,7 +6,6 @@ namespace Plasmid.Graphics
 {
     public class ShapeBatcher : IDisposable
     {
-
         public static readonly int MaxVertexCount = 1024;
         public static readonly int MaxIndexCount = MaxVertexCount * 3;
         public static readonly float MinLineThickness = 1f;
@@ -26,7 +25,6 @@ namespace Plasmid.Graphics
 
         private bool isStarted;
         private bool isDisposed;
-
 
         public ShapeBatcher(Game game)
         {
@@ -62,7 +60,6 @@ namespace Plasmid.Graphics
             effect?.Dispose();
             isDisposed = true;
         }
-
         public void Begin(Camera camera=null)
         {
             if (isStarted)
@@ -86,13 +83,11 @@ namespace Plasmid.Graphics
 
             isStarted = true;
         }
-
         public void End()
         {
             Flush();
             isStarted = false;
         }
-
         public void Flush()
         {
             if (shapeCount == 0)
@@ -117,7 +112,6 @@ namespace Plasmid.Graphics
             if (!isStarted)
                 throw new Exception("batch never started");
         }
-
         private void CheckSpace(int shapeVertexCount, int shapeIndexCount)
         {
             // Max size limits for single shape
@@ -135,7 +129,6 @@ namespace Plasmid.Graphics
         {
             DrawRectangleFill(rectangle.X, rectangle.Y, rectangle.Width, rectangle.Height, color);
         }
-
         public void DrawRectangleFill(float x, float y, float width, float height, Color color)
         {
             CheckStarted();
@@ -170,7 +163,6 @@ namespace Plasmid.Graphics
         {
             this.DrawLine(a.X, a.Y, b.X, b.Y, thickness, color);
         }
-
         public void DrawLine(float ax, float ay, float bx, float by, float thickness, Color color)
         {
             CheckStarted();
@@ -241,6 +233,10 @@ namespace Plasmid.Graphics
             shapeCount++;
         }
 
+        public void DrawRectangle(Rectangle rectangle, float thickness, Color color)
+        {
+            this.DrawRectangle(rectangle.X, rectangle.Y, rectangle.Width, rectangle.Height, thickness, color);
+        }
         public void DrawRectangle(float x, float y, float width, float height, float thickness, Color color)
         {
             float left = x;
@@ -254,7 +250,7 @@ namespace Plasmid.Graphics
             this.DrawLine(left, bottom, left, top, thickness, color);
         }
 
-        public void DrawCircle(float x, float y, float radius, int points, float thickness, Color color)
+        public void DrawCircle(float x, float y, float radius, Transform transform, int points, float thickness, Color color)
         {
             const int minPoints = 3;
             const int maxPoints = 256;
@@ -276,15 +272,18 @@ namespace Plasmid.Graphics
                 bx = cos * ax - sin * ay;
                 by = sin * ax + cos * ay;
 
-                this.DrawLine(ax + x, ay + y, bx + x, by + y, thickness, color);
+                transform.Apply(ax + x, ay + y, out float axTrans, out float ayTrans);
+                transform.Apply(bx + x, by + y, out float bxTrans, out float byTrans);
+
+                this.DrawLine(axTrans, ayTrans, bxTrans, byTrans, thickness, color);
+                //this.DrawLine(ax + x, ay + y, bx + x, by + y, thickness, color);
 
                 ax = bx;
                 ay = by;
             }
 
         }
-
-        public void DrawCircleFill(float x, float y, float radius, int points, Color color)
+        public void DrawCircleFill(float x, float y, float radius, Transform transform, int points, Color color)
         {
             this.CheckStarted();
 
@@ -316,7 +315,9 @@ namespace Plasmid.Graphics
 
             for (int i = 0; i < shapeVertexCount; i++)
             {
-                this.vertices[this.vertexCount++] = new VertexPositionColor(new Vector3(ax + x, ay + y, 0f), color);
+                transform.Apply(ax + x, ay + y, out float axTrans, out float ayTrans);
+
+                this.vertices[this.vertexCount++] = new VertexPositionColor(new Vector3(axTrans, ayTrans, 0f), color);
 
                 float bx = cos * ax - sin * ay;
                 float by = sin * ax + cos * ay;
@@ -345,7 +346,6 @@ namespace Plasmid.Graphics
                 this.DrawLine(a, b, thickness, color);
             }
         }
-
         public void DrawPolygonFill(Vector2[] polyVertices, int[] triangleIndices, Transform transform, Color color)
         {
             if (polyVertices is null || indices is null)
@@ -376,7 +376,8 @@ namespace Plasmid.Graphics
 
             this.shapeCount++;
         }
-
+        
+        // pretty sure this busted.
         public void DrawPolyTriangles(Vector2[] vertices, int[] triangles, Transform transform, Color color)
         {
             for (int i = 0; i < triangles.Length; i++)

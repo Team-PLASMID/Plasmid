@@ -1,22 +1,26 @@
 ﻿using Microsoft.Xna.Framework;
 using System;
 using System.Collections.Generic;
+using System.Diagnostics;
 using System.Text;
 
 namespace Plasmid.Graphics
 {
-    public struct Polygon : IDrawable
+    public struct Polygon : IShape
     {
         public Vector2[] Vertices { get; set; }
         public int[] Triangles { get; set; }
         public Transform Transform { get; set; }
+        public Color Color { get; set; }
         public bool Fill { get; set; }
         public float Thickness { get; set; }
-        public Color Color { get; set; }
 
-        public Polygon(Polygon polygon) : this(polygon.Vertices, polygon.Triangles, polygon.Transform, polygon.Fill, polygon.Thickness, polygon.Color) { }
-        public Polygon(Vector2[] vertices, Transform? transform, float thickness, Color color) : this(vertices, null, transform, false, thickness, color) { }
-        public Polygon(Vector2[] vertices, int[] triangles, Transform? transform, Color color) : this(vertices, triangles, transform, true, null, color) { }
+        public Polygon(Polygon polygon)
+            : this(polygon.Vertices, polygon.Triangles, polygon.Transform, polygon.Fill, polygon.Thickness, polygon.Color) { }
+        public Polygon(Vector2[] vertices, Transform? transform, float thickness, Color color)
+            : this(vertices, null, transform, false, thickness, color) { }
+        public Polygon(Vector2[] vertices, int[] triangles, Transform? transform, Color color)
+            : this(vertices, triangles, transform, true, null, color) { }
         public Polygon(Vector2[] vertices, int[] triangles, Transform? transform, bool fill, float? thickness, Color color)
         {
             if (vertices.Length < 3)
@@ -36,7 +40,7 @@ namespace Plasmid.Graphics
 
             this.Vertices = vertices;
             this.Triangles = triangles;
-            this.Transform = transform ?? Transform.Identity;
+            this.Transform = transform ?? Transform.Identity();
             this.Fill = fill;
             this.Thickness = thickness ?? 0f;
             this.Color = color;
@@ -45,13 +49,23 @@ namespace Plasmid.Graphics
                 if (!this.Triangulate())
                     throw new Exception("Could not automatically triangulate polygon.");
         }
-
         public void Draw(Game1 game)
         {
+            this.Draw(game, Vector2.Zero);
+        }
+        public void Draw(Game1 game, Vector2 position)
+        {
+            Transform transform = this.Transform.Combine(Transform.Shift(position));
+
             if (this.Fill)
-                game.Shapes.DrawPolygonFill(this.Vertices, this.Triangles, this.Transform, this.Color);
+                game.Shapes.DrawPolygonFill(this.Vertices, this.Triangles, transform, this.Color);
             else
-                game.Shapes.DrawPolygon(this.Vertices, this.Transform, this.Thickness, this.Color);
+                game.Shapes.DrawPolygon(this.Vertices, transform, this.Thickness, this.Color);
+        }
+
+        public void ApplyTransform(Transform otherTransform)
+        {
+            this.Transform = this.Transform.Combine(otherTransform);
         }
 
         public override bool Equals(object other)
@@ -130,7 +144,7 @@ namespace Plasmid.Graphics
                 return false;
             }
 
-            if (windingOrder is WindingOrder.CCW)
+            if (windingOrder is WindingOrder.CW)
                 Array.Reverse(vertices);
 
 
@@ -146,7 +160,7 @@ namespace Plasmid.Graphics
             triangles = new int[totalTriangleIndexCount];
             int triangleIndexCount = 0;
 
-
+            int progressCheck = indexList.Count;
             while (indexList.Count > 3)
             {
                 for (int i = 0; i < indexList.Count; i++)
@@ -164,7 +178,10 @@ namespace Plasmid.Graphics
 
                     // check convex
                     if (IsPointConvex(vertices, indexList, i))
+                    {
+                        Debug.WriteLine("convex");
                         continue;
+                    }
 
                     bool isEar = true;
 
@@ -178,6 +195,7 @@ namespace Plasmid.Graphics
                         if (IsPointInTriangle(p, vb, va, vc))
                         {
                             isEar = false;
+                            Debug.WriteLine("intersection");
                             break;
                         }
                     }
@@ -192,8 +210,12 @@ namespace Plasmid.Graphics
 
                         break;
                     }
-
                 }
+
+                if (progressCheck == indexList.Count)
+                    throw new Exception("Polygon.Triangulate is stuck in an infinite loop :(");
+                else
+                    progressCheck = indexList.Count;
             }
 
             triangles[triangleIndexCount++] = indexList[0];
