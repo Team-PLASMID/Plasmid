@@ -40,6 +40,7 @@ namespace Plasmid
         private Texture2D HpBarTexture;
 
         private SpriteFont BattleFont;
+        private SpriteFont bitCellFont;
 
         private Texture2D title;
         private Texture2D dnaStrand;
@@ -146,7 +147,8 @@ namespace Plasmid
             HpBarTexture = Content.Load<Texture2D>("hp_bar");
 
             BattleFont = Content.Load<SpriteFont>("BattleFont");
-            Label.DefaultFont = BaseCard.Font;
+            bitCellFont = Content.Load<SpriteFont>("CardFont");
+            Label.DefaultFont = bitCellFont;
 
             // Demo Deck
 
@@ -322,7 +324,7 @@ namespace Plasmid
             splash.AddTexture(Content, "title", new Vector2(17, 300), Color.White);
 
             startPanel = new Panel(new Vector2(128, 64), new Color(99, 155, 255), Alignment.BottomCenter);
-            startPanel.SetPadding(0, 50, 50, 0);
+            startPanel.SetPadding(50, 50, 50, 50);
 
             Button startButton = new Button(new Vector2(96, 32), startPanel.Color.ModifyL(.9f), Alignment.Center, "Start", Color.Wheat);
             startButton.Name = "start";
@@ -330,7 +332,7 @@ namespace Plasmid
             startButton.Click += new ButtonEventHandler(StartButtonClick);
 
 
-            startPanel.AddWidget(new Label("Touch to Start!", BattleFont, Color.Gold, Alignment.TopCenter));
+            startPanel.AddWidget(new Label("Touch to Start!", bitCellFont, Color.Gold, Alignment.TopCenter));
             startPanel.AddWidget(startButton);
 
             splash.AddWidget(startPanel);

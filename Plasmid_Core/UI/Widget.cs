@@ -7,18 +7,27 @@ using Plasmid.Graphics;
 
 namespace Plasmid.UI
 {
-    public struct Padding
+    public class Padding
     {
         public int Left;
         public int Top;
         public int Right;
         public int Bottom;
+
+        public Padding() : this(0, 0, 0, 0) { }
         public Padding(int left, int top, int right, int bottom)
         {
             this.Left = left;
             this.Top = top;
             this.Right = right;
             this.Bottom = bottom;
+        }
+        public bool IsEmpty()
+        {
+            if (Left == 0 && Top == 0 && Right == 0 && Bottom == 0)
+                return true;
+            else
+                return false;
         }
     }
     public enum Alignment
@@ -57,11 +66,12 @@ namespace Plasmid.UI
 
             this.Pos = Vector2.Zero;
             this.Dim = Vector2.Zero;
-            this.Color = color;
+            this.Pad = new Padding();
             this.Alignment = alignment;
+            this.Color = color;
+            this.FillSpace = true;
             this.IsAligned = false;
             this.IsVisible = true;
-            this.FillSpace = true;
         }
         // Fixed size
         public Widget(Vector2 dimensions, Alignment alignment, Color color, Vector2? position = null)
@@ -70,11 +80,12 @@ namespace Plasmid.UI
 
             this.Pos = position ?? Vector2.Zero;
             this.Dim = dimensions;
-            this.Color = color;
+            this.Pad = new Padding();
             this.Alignment = alignment;
+            this.Color = color;
+            this.FillSpace = false;
             this.IsAligned = false;
             this.IsVisible = true;
-            this.FillSpace = false;
         }
 
         public static void Init(Game1 game)
@@ -157,12 +168,20 @@ namespace Plasmid.UI
 
             return true;
         }
-        public virtual bool Align(Rectangle canvas)
+        public virtual bool Align(Rectangle canvas, bool respectPadding=true)
         {
-            if (Util.Align(this.Area, canvas, this.Alignment, out Vector2 position))
+            Rectangle rect;
+            if (!respectPadding || this.Pad.IsEmpty())
+                rect = this.Area;
+            else
+                rect = this.Footprint;
+
+            if (Util.Align(rect, canvas, this.Alignment, out Vector2 position))
             {
-                string str = "\n stuff";
-                this.Pos = position;
+                if (!respectPadding || this.Pad.IsEmpty())
+                    this.Pos = position;
+                else
+                    this.Pos = new Vector2(position.X + this.Pad.Left, position.Y + this.Pad.Bottom);
                 this.IsAligned = true;
                 if (this.Dim == Vector2.Zero && this.Pos == Vector2.Zero)
                     throw new Exception("Widget aligned, but with zeroed out dimensions." +

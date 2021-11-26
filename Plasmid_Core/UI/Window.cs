@@ -17,10 +17,5 @@ namespace Plasmid.UI
                 widget.Draw();
         }
 
-        public override bool Align(Rectangle area)
-        {
-            return base.Align(area);
-        }
-
     }
 }

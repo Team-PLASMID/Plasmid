@@ -42,7 +42,6 @@ namespace Plasmid.UI
         {
             if (this.isDepressed && this.Area.Contains(position))
             {
-                Debug.WriteLine("Clickity!" + this.Pos);
                 if (Click != null)
                     Click(this);
             }
@@ -50,7 +49,7 @@ namespace Plasmid.UI
             this.isDepressed = false;
         }
 
-        public override bool Align(Rectangle area)
+        public override bool Align(Rectangle area, bool respectPadding=true)
         {
             bool result = base.Align(area);
             this.Label.Align(this.Area);

@@ -1,4 +1,5 @@
-﻿using Microsoft.Xna.Framework;
+﻿#define DEBUG_UI
+using Microsoft.Xna.Framework;
 using System;
 using System.Collections.Generic;
 using System.Text;
@@ -40,7 +41,7 @@ namespace Plasmid.UI
             return true;
         }
 
-        public override bool Align(Rectangle area)
+        public override bool Align(Rectangle area, bool respectPadding=true)
         {
             bool result = base.Align(area);
             this.AlignSubWidgets();
@@ -86,6 +87,12 @@ namespace Plasmid.UI
 
         public override void Draw()
         {
+#if DEBUG_UI
+            Game.Shapes.Begin();
+            Game.Shapes.DrawRectangleFill(this.Footprint, new Color(Color.Magenta, .5f));
+            Game.Shapes.DrawRectangle(this.Footprint, 1f, Color.DarkMagenta);
+            Game.Shapes.End();
+#endif
             base.Draw();
             foreach (Widget widget in this.Widgets)
                 widget.Draw();

@@ -49,6 +49,8 @@
   </ItemGroup>
   <ItemGroup>
     <MonoGameContentReference Include="$(MSBuildThisFileDirectory)Content\Content.mgcb" />
+    <None Include="$(MSBuildThisFileDirectory)Content\BattleFont.spritefont" />
+    <None Include="$(MSBuildThisFileDirectory)Content\CardFont.spritefont" />
     <None Include="$(MSBuildThisFileDirectory)Content\Content.mgcb" />
   </ItemGroup>
   <ItemGroup>

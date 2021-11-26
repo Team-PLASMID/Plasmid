@@ -32,7 +32,7 @@ namespace Plasmid.UI
             this.printString = Util.WrapString(this.Font, this.Text, this.Dim.X);
         }
 
-        public override bool Align(Rectangle canvas)
+        public override bool Align(Rectangle canvas, bool respectPadding=true)
         {
             bool result = base.Align(canvas);
             if (!result)
