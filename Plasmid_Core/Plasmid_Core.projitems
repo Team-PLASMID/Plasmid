@@ -11,22 +11,26 @@
   <ItemGroup>
     <Compile Include="$(MSBuildThisFileDirectory)Cards\BaseCard.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)Cards\CardContainer.cs" />
+    <Compile Include="$(MSBuildThisFileDirectory)Cards\MoveCard.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)Graphics\Animation.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)Cards\FloatCard.cs" />
+    <Compile Include="$(MSBuildThisFileDirectory)Graphics\MoveAnimator.cs" />
+    <Compile Include="$(MSBuildThisFileDirectory)Graphics\Palette.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)Graphics\ColorCycler.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)Graphics\ColorExtensions.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)Graphics\Tileset.cs" />
+    <Compile Include="$(MSBuildThisFileDirectory)Input\TouchLocationExtensions.cs" />
+    <Compile Include="$(MSBuildThisFileDirectory)Microbes\DnaCycler.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)Microbes\DnaRandom.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)Microbes\DnaSequence.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)Graphics\Camera.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)Graphics\Circle.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)Graphics\Polygon.cs" />
-    <Compile Include="$(MSBuildThisFileDirectory)Microbes\MicrobeAnimation.cs" />
-    <Compile Include="$(MSBuildThisFileDirectory)Microbes\MicrobeVisual.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)Graphics\IShape.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)Graphics\Screen.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)UI\Button.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)UI\Splash.cs" />
+    <Compile Include="$(MSBuildThisFileDirectory)UI\SpriteWidget.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)UI\TextBlock.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)UI\Label.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)UI\Panel.cs" />
@@ -35,7 +39,6 @@
     <Compile Include="$(MSBuildThisFileDirectory)UI\Window.cs" />
     <Compile Include="..\Plasmid_Core\Graphics\ShapeBatcher.cs" />
     <Compile Include="..\Plasmid_Core\Graphics\SpriteBatcher.cs" />
-    <Compile Include="$(MSBuildThisFileDirectory)Input\ITouchable.cs" />
     <Compile Include="..\Plasmid_Core\Input\TouchInput.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)Graphics\Transform.cs" />
     <Compile Include="..\Plasmid_Core\Graphics\GraphUtils.cs" />
@@ -49,11 +52,13 @@
   </ItemGroup>
   <ItemGroup>
     <MonoGameContentReference Include="$(MSBuildThisFileDirectory)Content\Content.mgcb" />
-    <None Include="$(MSBuildThisFileDirectory)Content\BattleFont.spritefont" />
+    <None Include="$(MSBuildThisFileDirectory)Content\CardTitleFont.spritefont" />
+    <None Include="$(MSBuildThisFileDirectory)Content\LabelFont.spritefont" />
+    <None Include="$(MSBuildThisFileDirectory)Content\MessageFont.spritefont" />
     <None Include="$(MSBuildThisFileDirectory)Content\CardFont.spritefont" />
     <None Include="$(MSBuildThisFileDirectory)Content\Content.mgcb" />
   </ItemGroup>
   <ItemGroup>
-    <Content Include="$(MSBuildThisFileDirectory)cards ref.xml" />
+    <Content Include="$(MSBuildThisFileDirectory)Content\cards.xml" />
   </ItemGroup>
 </Project>

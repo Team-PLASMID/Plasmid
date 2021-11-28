@@ -4,6 +4,7 @@ using Plasmid.Graphics;
 using Plasmid.Cards;
 using System;
 using System.Collections.Generic;
+using System.Threading;
 
 namespace Plasmid
 {
@@ -34,6 +35,7 @@ namespace Plasmid
             else
                 return array[index];
         }
+
         public static T GetItem<T>(List<T> array, int index)
         {
             if (index >= array.Count)
@@ -43,6 +45,11 @@ namespace Plasmid
             else
                 return array[index];
 
+        }
+
+        public static void Wait(int milliseconds)
+        {
+            throw new NotImplementedException();
         }
     }
 }

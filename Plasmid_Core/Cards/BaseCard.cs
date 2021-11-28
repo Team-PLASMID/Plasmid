@@ -9,11 +9,24 @@ namespace Plasmid.Cards
 
     [Flags]
     public enum CardEffectType { Damage = 0, Block = 1 }
+    public static class CardEffectTypeExtensions
+    {
+        public static string ToString(this CardEffectType cef)
+        {
+            if (cef == CardEffectType.Damage)
+                return "Damage";
+            else if (cef == CardEffectType.Block)
+                return "Block";
+            else
+                return "Error";
+        }
+    }
     public struct CardEffect
     {
         public CardEffectType Type { get; set; }
         public int Value { get; set; }
         public CardEffect(CardEffectType type, int value) { Type = type; Value = value; }
+      
     }
 
     public abstract class BaseCard
@@ -23,35 +36,38 @@ namespace Plasmid.Cards
 
         protected static Game1 Game;
 
-        public static readonly int Height = 96;
-        public static readonly int Width = 64;
+        public static readonly int CardHeight = 64;
+        public static readonly int CardWidth = 64;
         public static readonly Color CardColor = Color.OldLace;
-        public static readonly Color CardBackColor = Color.CornflowerBlue;
+        //public static readonly Color CardBackColor = Color.CornflowerBlue;
+        public static readonly Color CardBackColor = Color.White;
+        //public static readonly Color CardBackColor = Game.ColorPalette.GetColor(4, 1);
         public static readonly Color CardFrameColor = Color.DarkGoldenrod;
 
-        public static Texture2D CardBlankTexture { get; set; }
-        public static Texture2D CardBackTexture { get; set; }
-        public static Texture2D CardFrameTexture { get; set; }
-        public static SpriteFont Font { get; set; }
+        public static Texture2D CardBlankTexture { get; protected set; }
+        public static Texture2D CardBackTexture { get; protected set; }
+        public static Texture2D CardFrameTexture { get; protected set; }
+        public static SpriteFont TitleFont { get; protected set; }
+        public static SpriteFont BodyFont { get; protected set; }
 
-        public bool IsVisible { get => this.isVisible; }
-        protected bool isVisible;
-        public CardState State { get => this.state; }
-        protected CardState state;
-        public Vector2 Position { get => this.position; }
-        protected Vector2 position;
-        public int X { get => (int)position.X; }
-        public int Y { get => (int)position.Y; }
-        public Rectangle Area { get => new Rectangle(this.X, this.Y, BaseCard.Width, BaseCard.Height); }
+        public bool IsVisible { get; set; }
+        public CardState State { get; set; }
+        public Vector2 Position { get; set; }
+        public float X { get => this.Position.X; }
+        public float Y { get => this.Position.Y; }
+        public virtual float Width { get => BaseCard.CardWidth; protected set { throw new Exception("Cards have fixed Width."); } }
+        public virtual float Height { get => BaseCard.CardHeight; protected set { throw new Exception("Cards have fixed Height."); } }
+        public Rectangle Area { get => new Rectangle((int)this.X, (int)this.Y, (int)this.Width, (int)this.Height); }
+        public Vector2 Center {  get => new Vector2((int)this.X + (this.Width/2), ( int)this.Y + (this.Height/2)); }
 
 
         public BaseCard(CardState state = CardState.FaceDown) : this(Vector2.Zero, state) { }
         public BaseCard(Vector2 position) : this(position, CardState.FaceDown) { }
         public BaseCard(Vector2 position, CardState state)
         {
-            this.position = position;
-            this.state = state;
-            this.isVisible = true;
+            this.Position = position;
+            this.State = state;
+            this.IsVisible = true;
         }
 
         public static void Init(Game1 game)
@@ -80,11 +96,12 @@ namespace Plasmid.Cards
             BaseCard.CheckInitialized();
 
             // Textures
-            CardBlankTexture = BaseCard.Game.Content.Load<Texture2D>("card");
+            CardBlankTexture = BaseCard.Game.Content.Load<Texture2D>("card_blank");
             CardBackTexture = BaseCard.Game.Content.Load<Texture2D>("card_back");
             CardFrameTexture = BaseCard.Game.Content.Load<Texture2D>("card_frame");
             // Fonts
-            Font = BaseCard.Game.Content.Load<SpriteFont>("CardFont");
+            TitleFont = Game.CardTitleFont;
+            BodyFont = Game.CardFont;
 
             BaseCard.isLoaded = true;
         }

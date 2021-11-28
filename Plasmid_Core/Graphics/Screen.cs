@@ -30,13 +30,6 @@ namespace Plasmid.Graphics
             this.target = new RenderTarget2D(this.game.GraphicsDevice, Width, Height);
 
             isSet = false;
-
-
-#if DEBUG
-            Rectangle backbufferBounds = this.game.GraphicsDevice.PresentationParameters.Bounds;
-            Debug.WriteLine("BACKBUFFER: " + backbufferBounds.Width + "x" + backbufferBounds.Height);
-            Debug.WriteLine("SCREEN: " + this.Width + "x" + this.Height);
-#endif
         }
 
         public void Dispose()
@@ -70,11 +63,7 @@ namespace Plasmid.Graphics
             if (sprites is null)
                 throw new ArgumentNullException("sprites");
 
-#if DEBUG
-            this.game.GraphicsDevice.Clear(Color.HotPink);
-#else
             this.game.GraphicsDevice.Clear(Color.Black);
-#endif
 
             Rectangle destinationRectangle = this.CalcDestRectangle();
 

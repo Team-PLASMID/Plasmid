@@ -29,7 +29,7 @@ namespace Plasmid.UI
 
         private void WrapText()
         {
-            this.printString = Util.WrapString(this.Font, this.Text, this.Dim.X);
+            this.printString = Util.WrapString(this.Font, this.Text, this.Dimensions.X);
         }
 
         public override bool Align(Rectangle canvas, bool respectPadding=true)

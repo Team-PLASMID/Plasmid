@@ -43,14 +43,14 @@ namespace Plasmid.UI
 
         private static bool isInitialized = false;
 
-        public Rectangle Area { get => new Rectangle((int)Pos.X, (int)Pos.Y, (int)Dim.X, (int)Dim.Y); }
+        public Rectangle Area { get => new Rectangle((int)Position.X, (int)Position.Y, (int)Dimensions.X, (int)Dimensions.Y); }
         public Rectangle Footprint { get => new Rectangle(
-                                        (int)(Pos.X - Pad.Left),
-                                        (int)(Pos.Y - Pad.Bottom),
-                                        (int)(Dim.X + Pad.Left + Pad.Right),
-                                        (int)(Dim.Y + Pad.Bottom + Pad.Top)); }
-        public Vector2 Pos { get; protected set; }
-        public Vector2 Dim { get; protected set; }
+                                        (int)(Position.X - Pad.Left),
+                                        (int)(Position.Y - Pad.Bottom),
+                                        (int)(Dimensions.X + Pad.Left + Pad.Right),
+                                        (int)(Dimensions.Y + Pad.Bottom + Pad.Top)); }
+        public Vector2 Position { get; protected set; }
+        public Vector2 Dimensions { get; protected set; }
         public Padding Pad { get; protected set; }
         public Alignment Alignment { get; set; }
         public Color Color { get; set; }
@@ -64,8 +64,8 @@ namespace Plasmid.UI
         {
             Widget.CheckInit();
 
-            this.Pos = Vector2.Zero;
-            this.Dim = Vector2.Zero;
+            this.Position = Vector2.Zero;
+            this.Dimensions = Vector2.Zero;
             this.Pad = new Padding();
             this.Alignment = alignment;
             this.Color = color;
@@ -78,8 +78,8 @@ namespace Plasmid.UI
         {
             Widget.CheckInit();
 
-            this.Pos = position ?? Vector2.Zero;
-            this.Dim = dimensions;
+            this.Position = position ?? Vector2.Zero;
+            this.Dimensions = dimensions;
             this.Pad = new Padding();
             this.Alignment = alignment;
             this.Color = color;
@@ -107,16 +107,18 @@ namespace Plasmid.UI
         public void Draw(int type = 0, Vector2? positionOverride=null, Color? colorOverride=null)
         {
             if (this.Alignment != Alignment.None && !this.IsAligned)
-                throw new Exception("Panel with specified alignment must be aligned to container before drawing.");
+                return;
+            //if (this.Alignment != Alignment.None && !this.IsAligned)
+            //    throw new Exception("Widget with specified alignment must be aligned to container before drawing.");
 
             if (!this.IsVisible)
                 return;
 
-            Vector2 position = positionOverride ?? this.Pos;
+            Vector2 position = positionOverride ?? this.Position;
             Color color = colorOverride ?? this.Color;
 
-            int x = (int)(this.Dim.X - 1);
-            int y = (int)(this.Dim.Y - 1);
+            int x = (int)(this.Dimensions.X - 1);
+            int y = (int)(this.Dimensions.Y - 1);
             int ts = Widget.Tiles.TileSize;
 
             // CORNERS:
@@ -163,8 +165,8 @@ namespace Plasmid.UI
 
         public bool ManualAlign(Rectangle alignment)
         {
-            this.Pos = new Vector2(alignment.X, alignment.Y);
-            this.Dim = new Vector2(alignment.Width, alignment.Height);
+            this.Position = new Vector2(alignment.X, alignment.Y);
+            this.Dimensions = new Vector2(alignment.Width, alignment.Height);
 
             return true;
         }
@@ -179,11 +181,11 @@ namespace Plasmid.UI
             if (Util.Align(rect, canvas, this.Alignment, out Vector2 position))
             {
                 if (!respectPadding || this.Pad.IsEmpty())
-                    this.Pos = position;
+                    this.Position = position;
                 else
-                    this.Pos = new Vector2(position.X + this.Pad.Left, position.Y + this.Pad.Bottom);
+                    this.Position = new Vector2(position.X + this.Pad.Left, position.Y + this.Pad.Bottom);
                 this.IsAligned = true;
-                if (this.Dim == Vector2.Zero && this.Pos == Vector2.Zero)
+                if (this.Dimensions == Vector2.Zero && this.Position == Vector2.Zero)
                     throw new Exception("Widget aligned, but with zeroed out dimensions." +
                         "\nDid you forget to add an auto-filling widget to a parent?");
                 return true;

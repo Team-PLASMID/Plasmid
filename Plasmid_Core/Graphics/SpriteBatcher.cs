@@ -63,6 +63,7 @@ namespace Plasmid.Graphics
 
             this.sprites.Begin(
                 sortMode: SpriteSortMode.Immediate,
+                //sortMode: SpriteSortMode.Deferred,
                 blendState: BlendState.AlphaBlend,
                 samplerState: sampler,
                 rasterizerState: RasterizerState.CullNone,
@@ -88,10 +89,15 @@ namespace Plasmid.Graphics
         {
             this.sprites.Draw(texture, destinationRectangle, sourceRectangle, color, 0f, Vector2.Zero, SpriteEffects.FlipVertically, 0f);
         }
-
+        //(font, MessageText, position + new Vector2(1 * scale, 1 * scale), backColor, 0, origin, scale, SpriteEffects.None, 1f)
         public void DrawString(SpriteFont font, string text, Vector2 position, Color color)
         {
-            this.sprites.DrawString(font, text, position, color, 0f, Vector2.Zero, 1f, SpriteEffects.FlipVertically, 0f);
+            this.DrawString(font, text, position, color, 1f);
+        }
+
+        public void DrawString(SpriteFont font, string text, Vector2 position, Color color, float scale)
+        {
+            this.sprites.DrawString(font, text, position, color, 0f, Vector2.Zero, scale, SpriteEffects.FlipVertically, 0f);
         }
     }
 }

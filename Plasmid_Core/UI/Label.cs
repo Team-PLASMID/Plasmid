@@ -23,7 +23,7 @@ namespace Plasmid.UI
             if (!this.IsVisible)
                 return;
 
-            Widget.Game.Sprites.DrawString(this.Font, this.Text, this.Pos, this.Color);
+            Widget.Game.Sprites.DrawString(this.Font, this.Text, this.Position, this.Color);
         }
     }
 }

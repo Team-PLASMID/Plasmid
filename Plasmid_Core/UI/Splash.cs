@@ -62,7 +62,7 @@ namespace Plasmid.UI
         }
         public bool CheckFit(Widget widget, Rectangle canvas)
         {
-            if (widget.Dim.X > canvas.Width || widget.Dim.Y > canvas.Height)
+            if (widget.Dimensions.X > canvas.Width || widget.Dimensions.Y > canvas.Height)
                 return false;
             else
                 return true;

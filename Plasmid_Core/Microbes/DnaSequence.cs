@@ -1,12 +1,90 @@
-﻿using System;
+﻿using Microsoft.Xna.Framework;
+using Microsoft.Xna.Framework.Content;
+using Microsoft.Xna.Framework.Graphics;
+using System;
 using System.Collections.Generic;
 using System.Diagnostics;
 using System.Text;
 
 namespace Plasmid.Microbes
 {
-    public enum Dna { A, G, T, C }
-    public class DnaSequence : List<Dna>, IEnumerable<Dna>
+    public enum Dna { None, A, G, T, C }
+    public static class DnaExtensions
+    {
+        private static Color colorA;
+        private static Color colorG;
+        private static Color colorT;
+        private static Color colorC;
+        public static Texture2D Texture { get; private set; }
+        public static void Load(Game1 game)
+        {
+            Texture = game.Content.Load<Texture2D>("nucleotides");
+            colorA = game.ColorPalette.GetColor(0);
+            colorG = game.ColorPalette.GetColor(3);
+            colorT = game.ColorPalette.GetColor(4);
+            colorC = game.ColorPalette.GetColor(2);
+        }
+        public static bool IsValid(this Dna dna)
+        {
+            if (dna > Dna.None)
+                return true;
+            return false;
+        }
+        public static Dna Compliment(this Dna dna)
+        {
+            if (dna == Dna.A)
+                return Dna.T;
+            if (dna == Dna.T)
+                return Dna.A;
+            if (dna == Dna.G)
+                return Dna.C;
+            if (dna == Dna.C)
+                return Dna.G;
+
+            return Dna.None;
+        }
+        public static Rectangle GetRect(this Dna dna)
+        {
+            if (dna == Dna.A)
+                return new Rectangle(0, 0, 16, 16);
+            if (dna == Dna.G)
+                return new Rectangle(16, 0, 16, 16);
+            if (dna == Dna.T)
+                return new Rectangle(32, 0, 16, 16);
+            if (dna == Dna.C)
+                return new Rectangle(48, 0, 16, 16);
+
+            return new Rectangle();
+        }
+        public static Color GetColor(this Dna dna)
+        {
+            if (dna == Dna.A)
+                return colorA;
+            if (dna == Dna.G)
+                return colorG;
+            if (dna == Dna.T)
+                return colorT;
+            if (dna == Dna.C)
+                return colorC;
+
+            return new Color();
+        }
+        public static string ToString(this Dna dna)
+        {
+            if (dna == Dna.A)
+                return "A";
+            if (dna == Dna.G)
+                return "G";
+            if (dna == Dna.T)
+                return "T";
+            if (dna == Dna.C)
+                return "C";
+
+            return "Error";
+        }
+    }
+
+    public class DnaSequence : List<Dna>
     {
         public static int LENGTH = 60;
         public static int MAX_INIT = 30;
@@ -21,7 +99,6 @@ namespace Plasmid.Microbes
         {
             this.Generate(random);
         }
-
         public void Generate(Random? random=null)
         {
             Random rand = random ?? new Random();
@@ -48,15 +125,6 @@ namespace Plasmid.Microbes
                 this.Generate(rand);
             }
         }
-
-        //public IEnumerator<Dna> GetEnumerator()
-        //{
-        //    foreach (Dna dna in this)
-        //    {
-        //        yield return dna;
-        //    }
-        //}
-
         public int CountBasePairs(Dna type)
         {
             int count = 0;
@@ -65,7 +133,6 @@ namespace Plasmid.Microbes
                     count++;
             return count;
         }
-
         public override string ToString()
         {
             string sequence = "";
@@ -83,7 +150,6 @@ namespace Plasmid.Microbes
 
             return sequence;
         }
-
         public void Print()
         {
             Debug.WriteLine("GENOME: " + this.ToString());
@@ -92,7 +158,6 @@ namespace Plasmid.Microbes
             Debug.WriteLine("     T: " + T + " (" + Math.Round((double)T / LENGTH * 100, 2) + "%)");
             Debug.WriteLine("     C: " + C + " (" + Math.Round((double)C / LENGTH * 100, 2) + "%)");
         }
-
         public DnaRandom GetDnaRandom()
         {
             return new DnaRandom(this);

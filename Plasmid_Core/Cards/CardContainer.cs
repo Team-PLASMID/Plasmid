@@ -7,64 +7,73 @@ namespace Plasmid.Cards
 {
     public abstract class CardContainer : BaseCard
     {
-        public List<Card> Cards { get => this.cards; }
-        protected List<Card> cards;
-        public int Limit { get => this.cards.Capacity; }
+        public List<Card> Cards { get; protected set; }
+        public int Limit { get; protected set; }
 
-        public CardContainer(Vector2 position, CardState state, int limit) : base(position, state)
+        public CardContainer(Vector2 position, CardState state, int limit=0) : base(position, state)
         {
-            this.cards = new List<Card>(limit);
+            this.Cards = new List<Card>();
         }
 
-        public int Count()
+        public virtual bool Add(Card card)
         {
-            return this.cards.Count;
+            if (Cards.Count + 1 <= Limit)
+            {
+                Cards.Add(card);
+                return true;
+            }
+            return false;
         }
 
-        public void Add(Card card)
+        public virtual int Count()
         {
-            this.cards.Add(card);
+            return this.Cards.Count;
         }
 
-        public void Insert(Card card, int index = -1)
+        public virtual void Insert(Card card, int index = -1)
         {
-            if (index < 0)
-                this.cards.Add(card);
-            else
-                this.cards.Insert(index, card);
+
+            if (index < 0 || index > Cards.Count)
+            {
+                this.Cards.Add(card);
+                return;
+            }
+
+            if (Cards.Count + 1 <= Limit)
+                this.Cards.Insert(index, card);
         }
 
-        public Card Peek()
+        public virtual Card Peek()
         {
-            return this.Get(this.cards.Count - 1);
+            return this.Peek(this.Cards.Count - 1);
         }
 
-        public Card Get(int index)
+        public virtual Card Peek(int index)
         {
-            return this.cards[index];
+            return this.Cards[index];
         }
 
-        public Card Remove(int index)
+        public virtual Card Remove(int index)
         {
-            Card card = this.Get(index);
-            this.cards.RemoveAt(index);
+            Card card = this.Peek(index);
+            this.Cards.RemoveAt(index);
             return card;
         }
 
-        public Card Take()
+        public virtual Card Take()
         {
-            return this.Remove(this.cards.Count - 1);
+            return this.Remove(this.Cards.Count - 1);
         }
 
-        public void Shuffle()
+        public virtual void Shuffle()
         {
             Random rand = new Random();
-            for (int i = 0; i < this.cards.Count; i++)
+            for (int i = 0; i < this.Cards.Count; i++)
             {
-                int r = rand.Next(this.cards.Count);
-                Card tmp = this.cards[i];
-                this.cards[i] = this.cards[r];
-                this.cards[r] = tmp;
+                int r = rand.Next(this.Cards.Count);
+                Card tmp = this.Cards[i];
+                this.Cards[i] = this.Cards[r];
+                this.Cards[r] = tmp;
             }
         }
 

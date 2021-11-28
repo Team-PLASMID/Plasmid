@@ -53,6 +53,15 @@ namespace Plasmid.Graphics
         {
             this.Draw(game, Vector2.Zero);
         }
+
+        public void Draw(Game1 game, Transform transform)
+        {
+            if (this.Fill)
+                game.Shapes.DrawPolygonFill(this.Vertices, this.Triangles, transform, this.Color);
+            else
+                game.Shapes.DrawPolygon(this.Vertices, transform, this.Thickness, this.Color);
+        }
+
         public void Draw(Game1 game, Vector2 position)
         {
             Transform transform = this.Transform.Combine(Transform.Shift(position));
@@ -179,7 +188,7 @@ namespace Plasmid.Graphics
                     // check convex
                     if (IsPointConvex(vertices, indexList, i))
                     {
-                        Debug.WriteLine("convex");
+                        //Debug.WriteLine("convex");
                         continue;
                     }
 
@@ -195,7 +204,7 @@ namespace Plasmid.Graphics
                         if (IsPointInTriangle(p, vb, va, vc))
                         {
                             isEar = false;
-                            Debug.WriteLine("intersection");
+                            //Debug.WriteLine("intersection");
                             break;
                         }
                     }

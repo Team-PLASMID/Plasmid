@@ -1,0 +1,88 @@
+﻿<?xml version="1.0" encoding="utf-8" ?>
+<Cards>
+
+  <Card>
+    <Name>Enzyme</Name>
+    <Text>Attack 1</Text>
+    <Cost>
+      <A>1</A>
+      <G>0</G>
+      <T>0</T>
+      <C>0</C>
+    </Cost>
+    <Effect>
+      <Damage>1</Damage>
+    </Effect>
+  </Card>
+
+  <Card>
+    <Name>Cytotoxin</Name>
+    <Text>Attack 2</Text>
+    <Cost>
+      <A>2</A>
+      <G>0</G>
+      <T>0</T>
+      <C>0</C>
+    </Cost>
+    <Effect>
+      <Damage>2</Damage>
+    </Effect>
+  </Card>
+
+  <Card>
+    <Name>Phage</Name>
+    <Text>Attack 3</Text>
+    <Cost>
+      <A>2</A>
+      <G>0</G>
+      <T>0</T>
+      <C>0</C>
+    </Cost>
+    <Effect>
+      <Damage>3</Damage>
+    </Effect>
+  </Card>
+
+  <Card>
+    <Name>Antibody</Name>
+    <Text>Defend 1</Text>
+    <Cost>
+      <A>0</A>
+      <G>1</G>
+      <T>0</T>
+      <C>0</C>
+    </Cost>
+    <Effect>
+      <Block>1</Block>
+    </Effect>
+  </Card>
+
+  <Card>
+    <Name>Cell Wall</Name>
+    <Text>Defend 2</Text>
+    <Cost>
+      <A>0</A>
+      <G>2</G>
+      <T>0</T>
+      <C>0</C>
+    </Cost>
+    <Effect>
+      <Block>2</Block>
+    </Effect>
+  </Card>
+
+  <Card>
+    <Name>Immunity</Name>
+    <Text>Defend 3</Text>
+    <Cost>
+      <A>0</A>
+      <G>2</G>
+      <T>0</T>
+      <C>0</C>
+    </Cost>
+    <Effect>
+      <Block>3</Block>
+    </Effect>
+  </Card>
+
+</Cards>

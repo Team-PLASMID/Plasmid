@@ -1,4 +1,4 @@
-﻿#define DEBUG_UI
+﻿//#define DEBUG_UI
 using Microsoft.Xna.Framework;
 using System;
 using System.Collections.Generic;
@@ -24,7 +24,7 @@ namespace Plasmid.UI
         }
         protected bool CheckFit(Widget widget, Rectangle area)
         {
-            if (widget.Dim.X > area.Width || widget.Dim.Y > area.Height)
+            if (widget.Dimensions.X > area.Width || widget.Dimensions.Y > area.Height)
                 return false;
             else
                 return true;
@@ -69,10 +69,10 @@ namespace Plasmid.UI
         public Rectangle GetCanvasArea()
         {
             Rectangle area = new Rectangle(
-                (int)this.Pos.X + Widget.Tiles.TileSize,
-                (int)this.Pos.Y + Widget.Tiles.TileSize,
-                (int)this.Dim.X - (2 * Widget.Tiles.TileSize),
-                (int)this.Dim.Y - (2 * Widget.Tiles.TileSize) );
+                (int)this.Position.X + Widget.Tiles.TileSize,
+                (int)this.Position.Y + Widget.Tiles.TileSize,
+                (int)this.Dimensions.X - (2 * Widget.Tiles.TileSize),
+                (int)this.Dimensions.Y - (2 * Widget.Tiles.TileSize) );
 
             foreach(Widget widget in this.Widgets)
             {
