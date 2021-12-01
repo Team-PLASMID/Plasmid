@@ -30,6 +30,8 @@ namespace Plasmid
         public ShapeBatcher Shapes { get; set; }
         public SpriteBatcher Sprites { get; set; }
 
+
+        public Battle Battle { get; set; }
         public CardDeck Deck { get; set; }
         public CardDeck Discard { get; set; }
         public CardHand Hand { get; set; }
@@ -54,13 +56,14 @@ namespace Plasmid
         private Vector2 HpBarLeftPos = new Vector2(4, 200);
         private Vector2 HpBarRightPos = new Vector2(131, 391);
 
+        public Rectangle PlayArea { get; set; }
+
 
         private Microbe microbeA;
         private Microbe microbeB;
 
         private Panel startPanel;
 
-        Battle BattleDemo;
         public Game1()
         {
             graphics = new GraphicsDeviceManager(this);
@@ -113,7 +116,7 @@ namespace Plasmid
             //    new Color(145, 58, 161) };
             //rainbow = new ColorCycler(colorList, 100);
 
-            BattleDemo = new Battle(this, microbeA, microbeB);
+            Battle = new Battle(this, microbeA, microbeB);
 
 
             base.Initialize();
@@ -184,7 +187,7 @@ namespace Plasmid
 
             if (this.State == GameState.Battle)
             {
-                BattleDemo.Update(gt);
+                Battle.Update(gt);
                 MoveCard.UpdateAll(gt);
             }
           
@@ -206,7 +209,7 @@ namespace Plasmid
             // BATTLE
             if (this.State == GameState.Battle)
             {
-                BattleDemo.Draw();
+                Battle.Draw();
             }
 
             // Start Screen

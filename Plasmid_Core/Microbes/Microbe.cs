@@ -7,7 +7,7 @@ using Plasmid.Graphics;
 
 namespace Plasmid.Microbes
 {
-class Microbe
+public class Microbe
     {
         public static int X_DIM = 100; //128;
         public static int Y_DIM = 100; //128;

@@ -8,7 +8,7 @@ namespace Plasmid.Cards
     public enum CardState { FaceUp, FaceDown, FaceUpTapped, FaceDownTapped }
 
     [Flags]
-    public enum CardEffectType { Damage = 0, Block = 1 }
+    public enum CardEffectType { None, Damage, Block, Draw, Discard, FreeCard, Peek,   }
     public static class CardEffectTypeExtensions
     {
         public static string ToString(this CardEffectType cef)
@@ -26,7 +26,12 @@ namespace Plasmid.Cards
         public CardEffectType Type { get; set; }
         public int Value { get; set; }
         public CardEffect(CardEffectType type, int value) { Type = type; Value = value; }
-      
+
+        public override string ToString()
+        {
+            return this.Type.ToString() + " " + this.Value + "\n";
+        }
+
     }
 
     public abstract class BaseCard
@@ -47,6 +52,7 @@ namespace Plasmid.Cards
         public static Texture2D CardBlankTexture { get; protected set; }
         public static Texture2D CardBackTexture { get; protected set; }
         public static Texture2D CardFrameTexture { get; protected set; }
+        public static Texture2D CardCostGemTexture { get; protected set; }
         public static SpriteFont TitleFont { get; protected set; }
         public static SpriteFont BodyFont { get; protected set; }
 
@@ -99,6 +105,7 @@ namespace Plasmid.Cards
             CardBlankTexture = BaseCard.Game.Content.Load<Texture2D>("card_blank");
             CardBackTexture = BaseCard.Game.Content.Load<Texture2D>("card_back");
             CardFrameTexture = BaseCard.Game.Content.Load<Texture2D>("card_frame");
+            CardCostGemTexture = BaseCard.Game.Content.Load<Texture2D>("card_cost_gem");
             // Fonts
             TitleFont = Game.CardTitleFont;
             BodyFont = Game.CardFont;
@@ -111,5 +118,6 @@ namespace Plasmid.Cards
             BaseCard.Game.Sprites.Draw(BaseCard.CardBackTexture, Vector2.Zero, position, BaseCard.CardBackColor);
         }
         public abstract void Draw();
+
     }
 }

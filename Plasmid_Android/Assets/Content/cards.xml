@@ -5,7 +5,7 @@
     <Name>Enzyme</Name>
     <Text>Attack 1</Text>
     <Cost>
-      <A>0</A>
+      <A>1</A>
       <G>0</G>
       <T>0</T>
       <C>0</C>
@@ -19,7 +19,7 @@
     <Name>Cytotoxin</Name>
     <Text>Attack 2</Text>
     <Cost>
-      <A>0</A>
+      <A>2</A>
       <G>0</G>
       <T>0</T>
       <C>0</C>
@@ -30,10 +30,10 @@
   </Card>
 
   <Card>
-    <Name>Phagocytosis</Name>
+    <Name>Phage</Name>
     <Text>Attack 3</Text>
     <Cost>
-      <A>0</A>
+      <A>2</A>
       <G>0</G>
       <T>0</T>
       <C>0</C>
@@ -44,11 +44,11 @@
   </Card>
 
   <Card>
-    <Name>Antibodies</Name>
+    <Name>Antibody</Name>
     <Text>Defend 1</Text>
     <Cost>
       <A>0</A>
-      <G>0</G>
+      <G>1</G>
       <T>0</T>
       <C>0</C>
     </Cost>
@@ -62,7 +62,7 @@
     <Text>Defend 2</Text>
     <Cost>
       <A>0</A>
-      <G>0</G>
+      <G>2</G>
       <T>0</T>
       <C>0</C>
     </Cost>
@@ -73,15 +73,100 @@
 
   <Card>
     <Name>Immunity</Name>
-    <Text>Defend 3</Text>
+    <Text>Ignore next damage</Text>
     <Cost>
       <A>0</A>
-      <G>0</G>
+      <G>3</G>
       <T>0</T>
       <C>0</C>
     </Cost>
     <Effect>
       <Block>3</Block>
+    </Effect>
+  </Card>
+
+  <Card>
+    <Name>Inhibit</Name>
+    <Text>Apply Weak 1</Text>
+    <Cost>
+      <A>0</A>
+      <G>0</G>
+      <T>1</T>
+      <C>0</C>
+    </Cost>
+    <Effect>
+      <Weak>1</Weak>
+    </Effect>
+  </Card>
+
+  <Card>
+    <Name>Corrode</Name>
+    <Text>Remove enemy block</Text>
+    <Cost>
+      <A>0</A>
+      <G>0</G>
+      <T>2</T>
+      <C>0</C>
+    </Cost>
+    <Effect>
+      <Expose>1</Expose>
+    </Effect>
+  </Card>
+
+  <Card>
+    <Name>Transfer</Name>
+    <Text>Steal 1 card</Text>
+    <Cost>
+      <A>0</A>
+      <G>0</G>
+      <T>3</T>
+      <C>0</C>
+    </Cost>
+    <Effect>
+      <Steal>1</Steal>
+    </Effect>
+  </Card>
+
+  <Card>
+    <Name>Metabolize</Name>
+    <Text>Draw 1, Discard 1</Text>
+    <Cost>
+      <A>0</A>
+      <G>0</G>
+      <T>0</T>
+      <C>1</C>
+    </Cost>
+    <Effect>
+      <Draw>1</Draw>
+      <Discard>1</Discard>
+    </Effect>
+  </Card>
+
+  <Card>
+    <Name>ATP</Name>
+    <Text>Draw 1</Text>
+    <Cost>
+      <A>0</A>
+      <G>0</G>
+      <T>0</T>
+      <C>2</C>
+    </Cost>
+    <Effect>
+      <Draw>1</Draw>
+    </Effect>
+  </Card>
+
+  <Card>
+    <Name>Surge</Name>
+    <Text>Play next card free</Text>
+    <Cost>
+      <A>0</A>
+      <G>0</G>
+      <T>0</T>
+      <C>3</C>
+    </Cost>
+    <Effect>
+      <FreeCard>1</FreeCard>
     </Effect>
   </Card>
 

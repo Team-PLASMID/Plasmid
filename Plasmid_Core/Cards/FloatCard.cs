@@ -72,24 +72,26 @@ namespace Plasmid.Cards
 
         public void TouchReleased(object sender, Vector2 touchPosition, float gameTime)
         {
-            // TODO
-            // Release should go off middle of card, not touch position
-
             if (!this.IsActive)
                 return;
 
             Vector2 center = this.HeldCard.Center;
 
-            if (BaseCard.Game.Hand.Area.Contains(center))
+            if (Game.State == GameState.Battle && Game.Battle.Phase == BattlePhase.PlayerTurn_Main)
             {
-                BaseCard.Game.Hand.Add(this.HeldCard);
-                BaseCard.Game.Hand.Align();
-            }
-            else if (BaseCard.Game.Deck.Area.Contains(center))
-                BaseCard.Game.Deck.Add(this.HeldCard);
-            else
-                this.Origin.Add(this.HeldCard);
+                if (BaseCard.Game.Hand.Area.Contains(center))
+                {
+                    BaseCard.Game.Hand.Add(this.HeldCard);
+                    BaseCard.Game.Hand.Align();
+                }
+                if (Game.PlayArea.Contains(center))
+                {
 
+                }
+                else
+                    BaseCard.Game.Deck.Add(this.HeldCard);
+
+            }
             this.HeldCard = null;
             this.IsActive = false;
         }

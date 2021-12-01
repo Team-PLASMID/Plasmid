@@ -9,6 +9,7 @@ using System.Xml;
 using System.IO;
 using Plasmid.Microbes;
 using Plasmid.Graphics;
+using Plasmid.UI;
 
 namespace Plasmid.Cards
 {
@@ -161,18 +162,49 @@ namespace Plasmid.Cards
             graphics.SetRenderTarget(this.Texture);
             graphics.Clear(Color.Transparent);
 
-            //Texture2D artTexture = BaseCard.Game.Content.Load<Texture2D>(this.Art);
 
             BaseCard.Game.Sprites.Begin();
 
+            // Draw Card base
             BaseCard.Game.Sprites.Draw(BaseCard.CardBlankTexture, Vector2.Zero, Vector2.Zero, this.Archetype.GetColor().ModifyL(1.3f));
-            BaseCard.Game.Sprites.Draw(BaseCard.CardFrameTexture, Vector2.Zero, Vector2.Zero, BaseCard.CardFrameColor);
+            BaseCard.Game.Sprites.Draw(BaseCard.CardFrameTexture, Vector2.Zero, Vector2.Zero, Color.White);
 
             // Name
             float nameLength = TitleFont.MeasureString(Name).X;
-            BaseCard.Game.Sprites.DrawString(Game.CardTitleFont, this.Name, new Vector2(32-(nameLength/2), 47), Color.Navy, 1f);
-            // Description
-            //BaseCard.Game.Sprites.DrawString(BaseCard.Font, this.Text, new Vector2(8, 32), Color.Black);
+            BaseCard.Game.Sprites.DrawString(Game.CardTitleFont, this.Name, new Vector2(32-(nameLength/2), 47), Color.White, 1f);
+
+            # region Card Cost
+
+            int index = 0;
+
+            for (int i = 0; i < CostA; i++)
+            {
+                BaseCard.Game.Sprites.Draw(CardCostGemTexture, Vector2.Zero, new Vector2(12 + 8 * index, 39), Dna.A.GetColor());
+                index++;
+            }
+            for (int i = 0; i < CostG; i++)
+            {
+                BaseCard.Game.Sprites.Draw(CardCostGemTexture, Vector2.Zero, new Vector2(12 + 8 * index, 39), Dna.G.GetColor());
+                index++;
+            }
+            for (int i = 0; i < CostT; i++)
+            {
+                BaseCard.Game.Sprites.Draw(CardCostGemTexture, Vector2.Zero, new Vector2(12 + 8 * index, 39), Dna.T.GetColor());
+                index++;
+            }
+            for (int i = 0; i < CostC; i++)
+            {
+                BaseCard.Game.Sprites.Draw(CardCostGemTexture, Vector2.Zero, new Vector2(12 + 8 * index, 39), Dna.C.GetColor());
+                index++;
+            }
+            #endregion
+
+            //7, 8, 50, 30
+            Rectangle textArea = new Rectangle(7, 8, 48, 30);
+            Vector2 tmp = BaseCard.Game.CardFont.MeasureString(Text);
+            string text = UI.Util.WrapString(BaseCard.Game.CardFont, Text, textArea.Width);
+
+            BaseCard.Game.Sprites.DrawString(Game.CardFont, text, new Vector2(9, 35 - BaseCard.Game.CardFont.MeasureString(text).Y), Color.Black);
 
             BaseCard.Game.Sprites.End();
             graphics.SetRenderTarget(null);

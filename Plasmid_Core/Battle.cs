@@ -12,8 +12,8 @@ using Plasmid.UI;
 
 namespace Plasmid
 {
-    public enum BattlePhase { None, Load, Setup, Start, Pause, PlayerTurn, EnemyTurn, Victory, Defeat}
-    class Battle
+    public enum BattlePhase { None, Load, Setup, Start, Pause, PlayerTurn_Start, PlayerTurn_Main, PlayerTurn_End, EnemyTurn, Victory, Defeat}
+    public class Battle
     {
         public static int colorcounter = 0;
         public Game1 Game { get; set; }
@@ -21,6 +21,7 @@ namespace Plasmid
         public BattlePhase Phase { get; private set; } = BattlePhase.Load;
         public BattlePhase PrePause { get; private set; }
         public Microbe Player { get; private set; }
+        public bool GotDna { get; set; }
         public Microbe Enemy { get; private set; }
         public int APool { get; private set; }
         public int GPool { get; private set; }
@@ -28,6 +29,7 @@ namespace Plasmid
         public int CPool { get; private set; }
         public string MessageText { get; set; } = "Get ready to fight!";
         public Vector2 MessagePosition { get; set; } = new Vector2(24, 437);
+
 
         private Texture2D background;
         private Texture2D console;
@@ -50,6 +52,7 @@ namespace Plasmid
         public bool DnaRotating { get; private set; }
         public bool DnaOffPosition { get; private set; }
         public float PreviousTime { get; private set; }
+        public int DnaCounter { get; set; }
 
         private Vector2 hpPanelAPosition = new Vector2(0, 197);
         private Vector2 hpPanelBPosition = new Vector2(125, 369);
@@ -79,6 +82,7 @@ namespace Plasmid
                 VisibleDna.Add(Dna.None);
             DnaOffset = 0;
             DnaOffPosition = false;
+            DnaCounter = -1;
 
             Rand = new Random();
             Phase = BattlePhase.Load;
@@ -129,10 +133,14 @@ namespace Plasmid
             playerAnimator = new MoveAnimator(new Vector2(207, 249), new Rectangle(179, 480 - 254, 64, 64), Rand);
             enemyAnimator = new MoveAnimator(new Vector2(62, 360), new Rectangle(27, 480 - 160, 64, 64), Rand);
 
-            APool = 3;
-            GPool = 6;
-            TPool = 4;
-            CPool = 2;
+            //APool = 4;
+            //GPool = 2;
+            //TPool = 5;
+            //CPool = 3;
+            APool = 0;
+            GPool = 0;
+            TPool = 0;
+            CPool = 0;
 
             Phase = BattlePhase.Start;
         }
@@ -144,29 +152,36 @@ namespace Plasmid
             if (this.Phase == BattlePhase.Setup)
                 this.Setup();
 
+            if (this.Phase == BattlePhase.Start)
+            {
+                if (DnaCounter == -1)
+                    DnaCounter = 9;
+
+                if (RotateDna(gametime))
+                {
+                    GotDna = false;
+                    Phase = BattlePhase.PlayerTurn_Start;
+
+                    MessageText = "It's your turn!";
+                    DnaCounter = 4;
+                }
+            }
+
+            if (Phase == BattlePhase.PlayerTurn_Start)
+            {
+                if (RotateDna(gametime))
+                    Phase = BattlePhase.PlayerTurn_Main;
+                else
+                {
+                    MessageText = "Play a card.";
+                }
+
+            }
+
 
             if (this.Phase < BattlePhase.Start || this.Phase == BattlePhase.Pause)
                 return;
 
-
-            if (DnaRotating == true)
-            {
-                if (DnaOffset == 16)
-                {
-                    VisibleDna.RemoveAt(0);
-                    DnaOffset = 0;
-                    DnaRotating = false;
-                    DnaOffPosition = true;
-                }
-                else
-                    DnaOffset++;
-            }
-            else if (gametime - PreviousTime > 1000)
-            {
-                VisibleDna.Add(SourceDna.Next());
-                DnaRotating = true;
-                PreviousTime = gametime;
-            }
 
             playerAnimator.Update();
             Player.Position = playerAnimator.Position;
@@ -189,7 +204,7 @@ namespace Plasmid
                 {
                     //case EffectType.Block:
                     case CardEffectType.Damage:
-                        if (this.Phase == BattlePhase.PlayerTurn)
+                        if (this.Phase == BattlePhase.PlayerTurn_Main)
                             Damage(Enemy, effect.Value);
                         else
                             Damage(Player, effect.Value);
@@ -221,10 +236,47 @@ namespace Plasmid
             }
         }
 
-        private void RotateDna(Dna dna)
+        private bool RotateDna(float gametime)
         {
-            VisibleDna.RemoveAt(0);
-            VisibleDna.Add(dna);
+            if (DnaCounter < 1)
+                return true;
+            if (DnaRotating == true)
+            {
+                if (DnaOffset == 16)
+                {
+                    VisibleDna.RemoveAt(0);
+                    DnaOffset = 0;
+                    DnaRotating = false;
+                    DnaOffPosition = true;
+                }
+                else
+                    DnaOffset++;
+                return false;
+            }
+            else if (gametime - PreviousTime > 250 && DnaCounter > 0)
+            {
+                VisibleDna.Add(SourceDna.Next());
+                DnaRotating = true;
+                PreviousTime = gametime;
+                DnaCounter--;
+                if (Phase == BattlePhase.PlayerTurn_Start)
+                    GetDna(VisibleDna[7]);
+                if (DnaCounter < 1)
+                    return true;
+            }
+            return false;
+        }
+
+        public void GetDna(Dna dna)
+        {
+            if (dna == Dna.A && APool >= 9)
+                APool++;
+            if (dna == Dna.G && GPool >= 9)
+                GPool++;
+            if (dna != Dna.T && TPool >= 9)
+                TPool++;
+            if (dna != Dna.C && CPool >= 9)
+                CPool++;
         }
 
         #region Draw Functions
@@ -343,6 +395,10 @@ namespace Plasmid
 
             // Draw energy bar overlays
             Game.Sprites.Draw(energyOverlay, Vector2.Zero, new Vector2(97, 4), Color.White);
+
+            // microbe labels
+            Game.Sprites.DrawString(Game.LabelFont, "PLAYER", new Vector2(30, 222), Color.Black);
+            Game.Sprites.DrawString(Game.LabelFont, "ENEMY", new Vector2(170, 370), Color.Black);
 
             // Draw deck
             Game.Deck.Draw();

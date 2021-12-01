@@ -12,7 +12,7 @@ namespace Plasmid.UI
 
     public delegate void ButtonEventHandler(object sender);
 
-    class Button : Widget
+    public class Button : Widget
     {
         public static int IdSource = 0;
         public Label Label { get; set; }
