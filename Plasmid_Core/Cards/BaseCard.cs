@@ -8,7 +8,7 @@ namespace Plasmid.Cards
     public enum CardState { FaceUp, FaceDown, FaceUpTapped, FaceDownTapped }
 
     [Flags]
-    public enum CardEffectType { None, Damage, Block, Draw, Discard, FreeCard, Peek,   }
+    public enum CardEffectType { None, Damage, Block, Draw, Discard, FreeCard, Peek   }
     public static class CardEffectTypeExtensions
     {
         public static string ToString(this CardEffectType cef)

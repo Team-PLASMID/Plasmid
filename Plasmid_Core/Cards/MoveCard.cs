@@ -103,7 +103,7 @@ namespace Plasmid.Cards
                 Velocity = Destination - Position;
                 Velocity = Vector2.Normalize(Velocity);
                 MinAccel = Velocity;
-                MaxAccel = 2f * Velocity;
+                MaxAccel = 2.5f * Velocity;
                 LastDestination = Destination;
                 return;
             }
